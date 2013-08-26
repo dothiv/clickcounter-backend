@@ -1,3 +1,4 @@
+# app models
 from google.appengine.ext import ndb
 
 class Domain(ndb.Model):

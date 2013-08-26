@@ -1,10 +1,10 @@
 # app decorators
-
 import base64
 from settings import AUTH_SECRET
 
 
 def basic_auth(func):
+  """Decorator to enforce HTTP Basic Auth"""
   def callf(request, *args, **kwargs):
     # parse the header to extract the password
     auth_header = request.request.headers.get('Authorization')
