@@ -7,7 +7,7 @@
                 var config = eval("(function(){return " + request.responseText + ";})()");
                 customizeBanner(config);
             }
-        }, request.open("POST", "http://dothiv-registry.appspot.com/c?from=iframe&domain=" + document.domain, !0), 
+        }, request.open("POST", "/c?from=iframe&domain=" + document.domain, !0), 
         request.send();
     }
     function parse(a, b) {

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import webapp2
-import .views
+import views
 
 application = webapp2.WSGIApplication([
     ('/', views.Index),
