@@ -1,7 +1,7 @@
 # app views
-
 import os, webapp2, jinja2
-from settings import JINJA_ENVIRONMENT
+
+from settings import JINJA_ENVIRONMENT, EUR_INCREMENT, EUR_TOTAL
 from models import Domain
 from decorators import basic_auth
 
@@ -21,12 +21,12 @@ class Config(webapp2.RequestHandler):
     return data[0]
 
 
+
   @basic_auth
   def get(self, domain):
     data = self.get_domain_data(domain)
-    # this is not valid JSON, but required like that by banner.min.js
     self.response.headers['Content-Type'] = 'text/plain'
-    json = '{%s "clickcount":"%s", "money":"%s", "status":"%s"}' % (
+    json = '{%s, "clickcount":"%s", "money":"%s", "status":"%s"}' % (
       data.content, data.clickcount, data.money, data.status
     )
     self.response.write(json)
@@ -37,6 +37,8 @@ class Config(webapp2.RequestHandler):
     data = self.get_domain_data(domain, allow_none=True)
     if not data:
       data = Domain(name=domain, clickcount=0, money=0., status=0.)
+    # example content:
+    # "firstvisit":"center","secondvisit":"center","heading":"Vielen Dank!","subheading":"Dein Klick auf domain.hiv hat soeben einen Gegenwert von 1&thinsp;ct ausgel&ouml;st.","claim":"Wir sind Teil der Bewegung","about":"&Uuml;ber dotHIV","vote":"Vote","activated":"Bisher aktiviert:","currency":"&euro;","corresponding":"entspricht","clicks":"Klicks"
     data.content = self.request.body
     data.put()
 
@@ -56,3 +58,37 @@ class Index(webapp2.RequestHandler):
     def get(self):
         template = JINJA_ENVIRONMENT.get_template('page.html')
         self.response.write(template.render())
+
+
+class Count(webapp2.RequestHandler):
+  def get_domain_data(self, domain):
+    data = Domain.query(Domain.name==domain).fetch(1)
+    if len(data) < 1:
+        self.abort(404)
+    return data[0]
+
+
+  def increment(self, domain):
+    data = self.get_domain_data(domain)
+    data.clickcount += 1
+    data.money += EUR_INCREMENT
+    data.status = (data.money * 100) / EUR_TOTAL
+    data.put()
+
+
+  def post(self):
+    params = self.request.params
+    if not 'domain' in params:
+      self.abort(404)
+
+    if 'from' in params and 'firstvisit' in params:
+      if params['from'] == 'inside' and params['firstvisit'] == 'true':
+        self.increment(params['domain'])
+
+    data = self.get_domain_data(params['domain'])
+    # explicit request to have content-type application/json
+    self.response.headers['Content-Type'] = 'application/json'
+    json = '{%s, "clickcount":"%s", "money":"%s", "status":"%s"}' % (
+      data.content, data.clickcount, data.money, data.status
+    )
+    self.response.write(json)
