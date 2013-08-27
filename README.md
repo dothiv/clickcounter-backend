@@ -47,7 +47,7 @@ ISSUES
     mentioned in
     https://docs.google.com/document/d/18N4WNGfieNwkS7Nfb518ok7tvOO4bGWwl-0EqdoqIrM
   - to add it, i suggest to add another method to be called in the post
-    method in the Count handler, right after the call to self._increment().
+    method in the Count handler, right after the call to increment.
     a new model would also be required and it seems that most of the wanted
     data can be grabbed from os.environ (when using webapp2).
 
