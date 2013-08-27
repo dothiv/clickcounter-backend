@@ -8,30 +8,32 @@ ISSUES
 
 - hypertext references in banner HTML/JS
   - templates/page.html references "/static/banner.min.js" . this could be
-    prefixed with the proper HTTP host, but this page is either served from
+    prefixed with the proper host name, but this page is either served from
     the customer domain where we have no control over the 'page template'
     or, for testing, locally from the app engine server. so prefixing seems
     pointless.
 
   - static/banner.min.js is served from the app engine server and should
     reference the banner HTML (position = [center|top|right]) using the
-    app engine server as HTTP host.
+    name of the app engine server as host.
     currently, the banner JS references the HTML relative to the host by
     "/static/banner-${position}.html", which, i believe, would make the
     user's browser try to get the resource from the customer's domain,
     because the originating page which includes the banner JS comes
     from there. but the banner HTML only exists on the app engine server.
-    this probably needs to be hardcoded once we know the DNS name of the
+    this probably needs to be hardcoded once we know the host name of the
     app engine server to be used.
 
   - similarly, static/banner.min.js and static/banner-${position}.html call
     the /c endpoint relatively at the moment. also, this could be hardcoded
-    once we know the DNS name.
+    once we know the host name.
 
   - alternatively, the 'static' files could become templates where we
-    dynamically prefix the HTTP host and don't have to worry about hardcoding
-    the DNS name. this comes with a small performance hit, of course. one
-    we would possibly never feel until we reach millions of requests/minute.
+    dynamically prefix the host name and don't have to worry about hardcoding
+    it. this comes with a small performance hit, of course. one we would
+    possibly never feel until we reach millions of requests/minute. but since
+    the client wants to use a cloud solution, it is probably wiser to not
+    take the hit.
 
 - /c not protected by HTTP Basic Auth
   - the notes further below state that /c should be protected by HTTP Basic
