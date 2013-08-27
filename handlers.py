@@ -48,10 +48,7 @@ class Config(webapp2.RequestHandler):
   def get(self, domain):
     data = self._get_domain_data(domain)
     self.response.headers['Content-Type'] = 'text/plain'
-    json = '{%s, "clickcount":"%s", "money":"%s", "status":"%s"}' % (
-      data.content, data.clickcount, data.money, data.status
-    )
-    self.response.write(json)
+    self.response.write(data.get_json())
 
 
   @basic_auth
@@ -112,7 +109,4 @@ class Count(webapp2.RequestHandler):
     data = self._get_domain_data(params['domain'])
     # explicit request to have content-type application/json
     self.response.headers['Content-Type'] = 'application/json'
-    json = '{%s, "clickcount":"%s", "money":"%s", "status":"%s"}' % (
-      data.content, data.clickcount, data.money, data.status
-    )
-    self.response.write(json)
+    self.response.write(data.get_json())
