@@ -1,7 +1,11 @@
+#!/usr/bin/env python
 import unittest, os, sys, base64
 
 # get app engine's resources
-sys.path.insert(0, '../google_appengine')
+SDK_PATH = '../google_appengine'
+print 'Using SDK path %s, please adjust if needed!' % SDK_PATH
+
+sys.path.insert(0, SDK_PATH)
 import dev_appserver
 dev_appserver.fix_sys_path()
 from webapp2 import Request
