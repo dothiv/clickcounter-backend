@@ -1,6 +1,9 @@
 # app models
 from google.appengine.ext import ndb
 
+from settings import EUR_INCREMENT, EUR_TOTAL
+
+
 class Domain(ndb.Model):
   """
   Models an individual domain entry with content, clickcount, money and
@@ -19,3 +22,11 @@ class Domain(ndb.Model):
         self.content + ',' if self.content else '',
         self.clickcount, self.money, self.status
     )
+
+
+  def increment(self):
+    """Increments clickcount, money and status."""
+    self.clickcount += 1
+    self.money += EUR_INCREMENT
+    self.status = (self.money * 100) / EUR_TOTAL
+    self.put()

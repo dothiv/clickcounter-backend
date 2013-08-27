@@ -1,7 +1,7 @@
 # app handlers
 import os, webapp2, jinja2
 
-from settings import JINJA_ENVIRONMENT, EUR_INCREMENT, EUR_TOTAL
+from settings import JINJA_ENVIRONMENT
 from models import Domain
 from decorators import basic_auth
 
@@ -88,25 +88,16 @@ class Count(webapp2.RequestHandler):
     return data[0]
 
 
-  def _increment(self, domain):
-    """Increments clickcount, money and status for the given domain."""
-    data = self._get_domain_data(domain)
-    data.clickcount += 1
-    data.money += EUR_INCREMENT
-    data.status = (data.money * 100) / EUR_TOTAL
-    data.put()
-
-
   def post(self):
     params = self.request.params
     if not 'domain' in params:
       self.abort(404)
 
+    data = self._get_domain_data(params['domain'])
     if 'from' in params and 'firstvisit' in params:
       if params['from'] == 'inside' and params['firstvisit'] == 'true':
-        self._increment(params['domain'])
+        data.increment()
 
-    data = self._get_domain_data(params['domain'])
     # explicit request to have content-type application/json
     self.response.headers['Content-Type'] = 'application/json'
     self.response.write(data.get_json())
