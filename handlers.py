@@ -1,4 +1,4 @@
-# app views
+# app handlers
 import os, webapp2, jinja2
 
 from settings import JINJA_ENVIRONMENT, EUR_INCREMENT, EUR_TOTAL
@@ -8,7 +8,7 @@ from decorators import basic_auth
 
 class Index(webapp2.RequestHandler):
     """
-    View Index
+    Handler Index
 
     Implements GET only and renders a simple page template
     """
@@ -20,7 +20,7 @@ class Index(webapp2.RequestHandler):
 
 class Config(webapp2.RequestHandler):
   """
-  View Config
+  Handler Config
 
   GET: show a domain's configuration as JSON (text/plain)
   POST: edit or create a domain's configuration, responds with 204
@@ -78,7 +78,7 @@ class Config(webapp2.RequestHandler):
 
 class Count(webapp2.RequestHandler):
   """
-  View Count
+  Handler Count
 
   POST: increment click count if certain parameters are valid
   """
