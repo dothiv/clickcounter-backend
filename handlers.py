@@ -90,7 +90,7 @@ class Count(webapp2.RequestHandler):
     domain = get_domain_or_404(params['domain'])
     if 'from' in params and 'firstvisit' in params:
       if params['from'] == 'inside' and params['firstvisit'] == 'true':
-        domain.increment()
+        domain.increment_counter()
 
     # explicit request to have content-type application/json
     self.response.headers['Content-Type'] = 'application/json'

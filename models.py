@@ -24,7 +24,7 @@ class Domain(ndb.Model):
     )
 
 
-  def increment(self):
+  def increment_counter(self):
     """Increments clickcount, money and status."""
     self.clickcount += 1
     self.money += EUR_INCREMENT
