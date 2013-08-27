@@ -6,6 +6,22 @@ from models import Domain
 from decorators import basic_auth
 
 
+def get_domain_or_404(name, allow_none=False):
+  """Gets a domain entity for the given name.
+
+  Aborts with 404 if entity doesn't exist and if that is not allowed.
+  """
+  if not name:
+    webapp2.abort(404)
+
+  domain = Domain.query(Domain.name==name).get()
+  if not domain and not allow_none:
+    webapp2.abort(404)
+
+  return domain
+
+
+
 class Index(webapp2.RequestHandler):
     """
     Handler Index
@@ -29,46 +45,32 @@ class Config(webapp2.RequestHandler):
   All HTTP methods are protected by HTTP Basic Auth.
   """
 
-  def _get_domain_data(self, domain, allow_none=False):
-    """Gets a data storage entity for the given domain"""
-    if not domain:
-      self.abort(404)
-
-    data = Domain.query(Domain.name==domain).fetch(1)
-    if len(data) < 1:
-      if allow_none:
-        return None
-      else:
-        self.abort(404)
-
-    return data[0]
-
-
   @basic_auth
-  def get(self, domain):
-    data = self._get_domain_data(domain)
+  def get(self, domain_name):
+    domain = get_domain_or_404(domain_name)
     self.response.headers['Content-Type'] = 'text/plain'
-    self.response.write(data.get_json())
+    self.response.write(domain.get_json())
 
 
   @basic_auth
-  def post(self, domain):
-    data = self._get_domain_data(domain, allow_none=True)
-    if not data:
-      data = Domain(name=domain, clickcount=0, money=0., status=0.)
+  def post(self, domain_name):
+    domain = get_domain_or_404(domain_name, allow_none=True)
+    if not domain:
+      domain = Domain(name=domain_name, clickcount=0, money=0., status=0.)
     # example content:
     # "firstvisit":"center","secondvisit":"center","heading":"Vielen Dank!","subheading":"Dein Klick auf domain.hiv hat soeben einen Gegenwert von 1&thinsp;ct ausgel&ouml;st.","claim":"Wir sind Teil der Bewegung","about":"&Uuml;ber dotHIV","vote":"Vote","activated":"Bisher aktiviert:","currency":"&euro;","corresponding":"entspricht","clicks":"Klicks"
-    data.content = self.request.body
-    data.put()
+    domain.content = self.request.body
+    domain.put()
 
     self.response.headers['Content-Type'] = 'text/plain'
     self.response.set_status(204)
 
 
   @basic_auth
-  def delete(self, domain):
-    data = self._get_domain_data(domain)
-    data.key.delete()
+  def delete(self, domain_name):
+    domain = Domain.query(Domain.name==domain_name).get()
+    if domain:
+      domain.key.delete()
     self.response.headers['Content-Type'] = 'text/plain'
     self.response.set_status(204)
 
@@ -80,24 +82,16 @@ class Count(webapp2.RequestHandler):
   POST: increment click count if certain parameters are valid
   """
 
-  def _get_domain_data(self, domain):
-    """Gets a data storage entity for the given domain."""
-    data = Domain.query(Domain.name==domain).fetch(1)
-    if len(data) < 1:
-        self.abort(404)
-    return data[0]
-
-
   def post(self):
     params = self.request.params
     if not 'domain' in params:
       self.abort(404)
 
-    data = self._get_domain_data(params['domain'])
+    domain = get_domain_or_404(params['domain'])
     if 'from' in params and 'firstvisit' in params:
       if params['from'] == 'inside' and params['firstvisit'] == 'true':
-        data.increment()
+        domain.increment()
 
     # explicit request to have content-type application/json
     self.response.headers['Content-Type'] = 'application/json'
-    self.response.write(data.get_json())
+    self.response.write(domain.get_json())
