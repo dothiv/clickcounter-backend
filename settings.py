@@ -1,8 +1,16 @@
 # app settings
 import os, jinja2
+import ConfigParser
+import random, string
 
 # secret to use for HTTP Basic Auth (/config)
-AUTH_SECRET = 'Aladdin:open sesame' # 'QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+AUTH_SECRET = ''.join(random.choice(string.lowercase) for i in range(10))
+config = ConfigParser.RawConfigParser()
+try:
+  config.read('authenticationSecret.cfg')
+  AUTH_SECRET = config.get('Authentication', 'secret')
+except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+  pass
 
 # how many EUR to increment on click; added to field 'money'
 EUR_INCREMENT = 0.001
