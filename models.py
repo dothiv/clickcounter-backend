@@ -42,3 +42,9 @@ class Domain(ndb.Model):
     self.money += EUR_INCREMENT
     self.status = (self.money * 100) / EUR_TOTAL
     self.put()
+
+
+class StaticFile(ndb.Model):
+  name = ndb.StringProperty(indexed=True, required=True)
+  content = ndb.TextProperty()
+  content_type = ndb.StringProperty(required=True)
