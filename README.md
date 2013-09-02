@@ -6,7 +6,7 @@ The Google App Engine cloud app that supports the Click Counter.
 ISSUES
 ------
 
-- hypertext references in banner HTML/JS
+- keep hypertext references in banner HTML/JS hardcoded?
   - templates/page.html references "/static/banner.min.js" . this could be
     prefixed with the proper host name, but this page is either served from
     the customer domain where we have no control over the 'page template'
@@ -35,8 +35,11 @@ ISSUES
     the client wants to use a cloud solution, it is probably wiser to not
     take the hit.
 
-  - to summarise this block: probably best to leave the paths hardcoded.
-
+- POST to static files
+  - should the static JS/HTML files really be 'uploaded' by POSTing to their
+    URL? wouldn't it be more maintainable to have a git hook that will deploy
+    to the app engine server automatically once these files have been changed
+    in the repository?
 
 - /c not protected by HTTP Basic Auth
   - the notes further below state that /c should be protected by HTTP Basic
@@ -56,11 +59,6 @@ ISSUES
     a new model would also be required and it seems that most of the wanted
     data can be grabbed from os.environ (when using webapp2).
 
-- POST to static files
-  - should the static JS/HTML files really be 'uploaded' by POSTing to their
-    URL? wouldn't it be more maintainable to have a git hook that will deploy
-    to the app engine server automatically once these files have been changed
-    in the repository?
 
 NOTES
 -----
