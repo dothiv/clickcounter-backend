@@ -9,13 +9,21 @@ Howto clean database
 
 Atomic nbd.put()
 ----------------
+"Strongly consistent"
+https://developers.google.com/appengine/docs/python/storage
 
 IPv6 compatibility
 ------------------
+"This means that all App Engine apps will become accessible over IPv6 to anyone participating in the program!"
+http://googleappengine.blogspot.de/2010/03/app-engine-joins-google-over-ipv6.html
+
+
 
 Data storage comparision
 ------------------------
-
+"Strongly consistent except when performing global queries."
+"The App Engine Datastore offers a free quota with daily limits. Paid accounts offer unlimited storage, read, and write operations."
+https://developers.google.com/appengine/docs/python/storage
 
 
 NOTES

@@ -107,17 +107,7 @@ class StaticServe(webapp2.RequestHandler):
       static_file = StaticFile(name=file_name)
 
     static_file.content = self.request.body
-    if 'Content-Type' in self.request.headers:
-      static_file.content_type = self.request.headers['Content-Type']
-    else:
-      file_extension = file_name.split('.')[-1]
-      if file_extension == 'js':
-        static_file.content_type = 'application/javascript'
-      elif file_extension == 'html':
-        static_file.content_type = 'text/html'
-      else:
-        static_file.content_type = 'text/plain'
-
+    static_file.content_type = self.get_content_type(self.request.headers)
     static_file.put()
 
     self.response.headers['Content-Type'] = 'text/plain'
@@ -132,3 +122,16 @@ class StaticServe(webapp2.RequestHandler):
       self.response.set_status(200)
       self.response.headers['Content-Type'] = str(static_file.content_type)
       self.response.headers['Access-Control-Allow-Origin'] = '*'
+
+  def get_content_type(self, headers):
+    if 'Content-Type' in headers:
+      content_type = headers['Content-Type']
+    else:
+      file_extension = file_name.split('.')[-1]
+      if file_extension == 'js':
+        content_type = 'application/javascript'
+      elif file_extension == 'html':
+        content_type = 'text/html'
+      else:
+        content_type = 'text/plain'
+    return content_type
