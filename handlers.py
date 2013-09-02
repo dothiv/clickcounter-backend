@@ -91,7 +91,7 @@ class Count(webapp2.RequestHandler):
     if 'from' in params and 'firstvisit' in params:
       if params['from'] == 'inside' and params['firstvisit'] == 'true':
         domain.increment_counter()
-        UserData.add(self.request)
+        UserData.add(self.request, params['domain'])
 
     # explicit request to have content-type application/json
     self.response.headers['Content-Type'] = 'application/json'
