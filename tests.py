@@ -4,7 +4,7 @@ import unittest, os, sys, base64
 # get app engine's resources
 SDK_PATH = sys.argv.pop() or '../google_appengine'
 
-print 'Using SDK path %s, please adjust if needed!' % SDK_PATH
+print 'Using SDK path %s' % SDK_PATH
 
 sys.path.insert(0, SDK_PATH)
 import dev_appserver
@@ -56,7 +56,7 @@ class TestCase(unittest.TestCase):
     self.assertEqual(response.status_int, 204)
     self.assertEqual(response.body, '')
 
-    body = '{"foo":"bar", "clickcount":0, "money":0.0, "status":0.}'
+    body = '{"foo":"bar", "clickcount":0, "money":0.0, "status":0.0}'
     request = Request.blank(self.uri_config, headers=[self.auth_header])
     response = request.get_response(application)
     self.assertEqual(response.body, body)
@@ -128,7 +128,7 @@ class TestCase(unittest.TestCase):
 
     # all values should still be 0 on firstvisit == false
     uri = '/c?domain=' + self.domain + '&firstvisit=false&from=inside'
-    body = '{ "clickcount":0, "money":0.0, "status":0.}'
+    body = '{ "clickcount":0, "money":0.0, "status":0.0}'
     self._test_c_post(uri, body)
 
     # all values should still be 0 on from == outside
