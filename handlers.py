@@ -1,8 +1,8 @@
 # app handlers
-import os, webapp2, jinja2
+import webapp2
 
 from settings import JINJA_ENVIRONMENT
-from models import Domain, StaticFile
+from models import Domain, StaticFile, UserData
 from decorators import basic_auth
 
 
@@ -91,6 +91,7 @@ class Count(webapp2.RequestHandler):
     if 'from' in params and 'firstvisit' in params:
       if params['from'] == 'inside' and params['firstvisit'] == 'true':
         domain.increment_counter()
+        UserData.add(self.request)
 
     # explicit request to have content-type application/json
     self.response.headers['Content-Type'] = 'application/json'

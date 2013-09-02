@@ -1,6 +1,7 @@
 # app models
 from google.appengine.ext import ndb
 from settings import EUR_INCREMENT, EUR_TOTAL
+import os
 
 
 class Domain(ndb.Model):
@@ -48,3 +49,16 @@ class StaticFile(ndb.Model):
   name = ndb.StringProperty(indexed=True, required=True)
   content = ndb.TextProperty()
   content_type = ndb.StringProperty(required=True)
+
+class UserData(ndb.Model):
+  remote_addr = ndb.StringProperty()
+  http_user_agent = ndb.StringProperty()
+  referer = ndb.StringProperty()
+  date_time = ndb.DateTimeProperty(auto_now_add=True)
+
+  @classmethod
+  def add(cls, request):
+    user_data = cls(remote_addr=os.environ.get('REMOTE_ADDR',None),
+      http_user_agent= request.headers.get('HTTP_USER_AGENT', None),
+      referer = request.referer)
+    user_data.put()
