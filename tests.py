@@ -2,7 +2,8 @@
 import unittest, os, sys, base64
 
 # get app engine's resources
-SDK_PATH = '../google_appengine'
+SDK_PATH = sys.argv.pop() or '../google_appengine'
+
 print 'Using SDK path %s, please adjust if needed!' % SDK_PATH
 
 sys.path.insert(0, SDK_PATH)
@@ -55,7 +56,7 @@ class TestCase(unittest.TestCase):
     self.assertEqual(response.status_int, 204)
     self.assertEqual(response.body, '')
 
-    body = '{"foo":"bar", "clickcount":"0", "money":"0.0", "status":"0.0"}'
+    body = '{"foo":"bar", "clickcount":0, "money":0.0, "status":0.}'
     request = Request.blank(self.uri_config, headers=[self.auth_header])
     response = request.get_response(application)
     self.assertEqual(response.body, body)
@@ -127,7 +128,7 @@ class TestCase(unittest.TestCase):
 
     # all values should still be 0 on firstvisit == false
     uri = '/c?domain=' + self.domain + '&firstvisit=false&from=inside'
-    body = '{ "clickcount":"0", "money":"0.0", "status":"0.0"}'
+    body = '{ "clickcount":0, "money":0.0, "status":0.}'
     self._test_c_post(uri, body)
 
     # all values should still be 0 on from == outside
@@ -140,11 +141,11 @@ class TestCase(unittest.TestCase):
 
     # this should count
     uri = '/c?domain=' + self.domain + '&firstvisit=true&from=inside'
-    body = '{ "clickcount":"1", "money":"0.1", "status":"2e-05"}'
+    body = '{ "clickcount":1, "money":0.001, "status":0.0000002}'
     self._test_c_post(uri, body)
 
     # this should count again
-    body = '{ "clickcount":"2", "money":"0.2", "status":"4e-05"}'
+    body = '{ "clickcount":2, "money":0.002, "status":0.0000004}'
     self._test_c_post(uri, body)
 
 

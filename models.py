@@ -18,9 +18,9 @@ class Domain(ndb.Model):
 
   def get_json(self):
     """Converts the field data into proper JSON."""
-    return '{%s "clickcount":"%s", "money":"%s", "status":"%s"}' % (
+    return '{%s "clickcount":%s, "money":%s, "status":%s}' % (
         self.content + ',' if self.content else '',
-        self.clickcount, self.money, self.status
+        self.clickcount, self.money, ('%.8f'% self.status).rstrip('0')
     )
 
 

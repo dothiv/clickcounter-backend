@@ -5,7 +5,7 @@ import os, jinja2
 AUTH_SECRET = 'Aladdin:open sesame' # 'QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 
 # how many EUR to increment on click; added to field 'money'
-EUR_INCREMENT = 0.1
+EUR_INCREMENT = 0.001
 
 # total budget available; used to calculate status
 EUR_TOTAL = 500000
