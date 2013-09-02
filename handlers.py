@@ -110,11 +110,13 @@ class StaticServe(webapp2.RequestHandler):
       static_file = StaticFile(name=file_name)
 
     static_file.content = self.request.body
-    static_file.content_type = self.get_content_type(self.request.headers)
+    static_file.content_type = self.get_content_type(
+      self.request.headers, file_name)
     static_file.put()
 
     self.response.headers['Content-Type'] = 'text/plain'
     self.response.set_status(204)
+
 
   def get(self, file_name):
     static_file = StaticFile.query(StaticFile.name==file_name).get()
@@ -126,7 +128,8 @@ class StaticServe(webapp2.RequestHandler):
       self.response.headers['Content-Type'] = str(static_file.content_type)
       self.response.headers['Access-Control-Allow-Origin'] = '*'
 
-  def get_content_type(self, headers):
+
+  def get_content_type(self, headers, file_name):
     if 'Content-Type' in headers:
       content_type = headers['Content-Type']
     else:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import unittest, os, sys, base64
+import unittest, os, sys, base64, datetime
 
 # get app engine's resources
 SDK_PATH = sys.argv.pop() or '../google_appengine'
@@ -14,7 +14,7 @@ from google.appengine.ext import testbed
 
 from main import application
 from settings import AUTH_SECRET
-from models import Domain
+from models import Domain, UserData
 
 
 class TestCase(unittest.TestCase):
@@ -156,6 +156,100 @@ class TestCase(unittest.TestCase):
     self.assertEqual(to_json(0.), '0.0')
     self.assertEqual(to_json(4.50000), '4.5')
     self.assertEqual(to_json(1e-07), '0.0000001')
+
+
+  def test_userdata_add(self):
+    remote_addr = '127.0.0.1'
+    http_user_agent = 'foo agent'
+    domain = 'foobar'
+    referer = None
+
+    class Request(object): pass
+    request = Request()
+    request.headers = {'HTTP_USER_AGENT': http_user_agent}
+    request.referer = referer
+    os.environ['REMOTE_ADDR'] = remote_addr
+    UserData.add(request, domain)
+
+    user_data = UserData.query(UserData.domain==domain).get()
+    self.assertEqual(user_data.remote_addr, remote_addr)
+    self.assertEqual(user_data.http_user_agent, http_user_agent)
+    self.assertEqual(user_data.referer, referer)
+
+
+  def _create_static(self, uri, body, content_type=None):
+    """Helper to create a static file
+
+    Returns the response object.
+    """
+    headers = [self.auth_header]
+    if content_type:
+      headers.append(('Content-type', content_type))
+    request = Request.blank(uri, headers=headers)
+    request.method = 'POST'
+    request.body = body
+    return request.get_response(application)
+
+
+  def _static_post(self, uri, body, content_type=None):
+    response = self._create_static(
+      uri=uri, body=body, content_type=content_type)
+    self.assertEqual(response.status_int, 204)
+    self.assertEqual(response.body, '')
+
+
+  def test_static_post_banner_min_js(self):
+    self._static_post(
+      uri='/static/banner.min.js',
+      body='a = 23;',
+      content_type='application/javascript')
+
+
+  def test_static_post_banner_center_html(self):
+    response = self._static_post(
+      uri='/static/banner-center.html',
+      body='<html><body></body></html>',
+      content_type='text/html')
+
+
+  def _static_get(self, uri, body, content_type=None):
+    response = application.get_response(uri)
+    self.assertEqual(response.status_int, 404)
+
+    self._create_static(uri=uri, body=body, content_type=content_type)
+    response = application.get_response(uri)
+    self.assertEqual(response.body, body)
+    if content_type:
+      self.assertEqual(response.content_type, content_type)
+    else:
+      self.assertEqual(response.content_type, 'text/plain')
+    self.assertEqual(response.status_int, 200)
+
+
+  def test_static_get_banner_center_html(self):
+    self._static_get(
+      uri='/static/banner-center.html',
+      body='<html><body></body></html>',
+      content_type='text/html')
+
+
+  def test_static_banner_center_html_get(self):
+    self._static_get(
+      uri='/static/banner-center.html',
+      body='<html><body></body></html>',
+      content_type='text/html')
+
+
+  def test_static_banner_plain_get(self):
+    self._static_get(
+      uri='/static/banner.plain',
+      body='plain text',
+      content_type='text/plain')
+
+  def test_static_no_content_type_get(self):
+    self._static_get(
+      uri='/static/banner.no-content-type',
+      body='plain text')
 
 
 if __name__ == '__main__':
