@@ -4,8 +4,23 @@ clickcounter-backend
 
 The Google App Engine cloud app that supports the Click Counter.
 
+Access
+------
+https://dothivtest.appspot.com/
+password for authenticated requests: 123123
+
+
 Howto clean database
 --------------------
+There is no way to drop all tables. The best would probably to
+start the Interactive Console of your app engine and paste code like this:
+
+	from google.appengine.ext import ndb
+	from models import UserData
+	keys = UserData.query().fetch(keys_only=True)
+	ndb.delete_multi(keys)
+
+and repeat that for each data model.
 
 
 Atomic nbd.put()
