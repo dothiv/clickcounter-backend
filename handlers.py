@@ -90,6 +90,9 @@ class Count(webapp2.RequestHandler):
     domain = get_domain_or_404(params['domain'])
     if 'from' in params and 'firstvisit' in params:
       if params['from'] == 'inside' and params['firstvisit'] == 'true':
+        # maybe use a transaction for these two independent database
+        # operations? maybe not: it doesn't really matter if an entity of
+        # UserData could be put while Domain failed or vice versa.
         domain.increment_counter()
         UserData.add(self.request, params['domain'])
 

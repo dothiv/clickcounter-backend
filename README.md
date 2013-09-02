@@ -7,10 +7,14 @@ The Google App Engine cloud app that supports the Click Counter.
 Howto clean database
 --------------------
 
+
 Atomic nbd.put()
 ----------------
+Data objects are modified in the handlers and then all the modifications are
+sent to the storage together by NBD's put() method, which in itself is consistent.
+See https://developers.google.com/appengine/docs/python/storage :
 "Strongly consistent"
-https://developers.google.com/appengine/docs/python/storage
+
 
 IPv6 compatibility
 ------------------
