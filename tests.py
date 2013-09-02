@@ -14,6 +14,7 @@ from google.appengine.ext import testbed
 
 from main import application
 from settings import AUTH_SECRET
+from models import Domain
 
 
 class TestCase(unittest.TestCase):
@@ -147,6 +148,14 @@ class TestCase(unittest.TestCase):
     # this should count again
     body = '{ "clickcount":2, "money":0.002, "status":0.0000004}'
     self._test_c_post(uri, body)
+
+
+  def test_domain_python_to_json_float(self):
+    to_json = Domain(name='').python_to_json_float
+    self.assertEqual(to_json(0), '0.0')
+    self.assertEqual(to_json(0.), '0.0')
+    self.assertEqual(to_json(4.50000), '4.5')
+    self.assertEqual(to_json(1e-07), '0.0000001')
 
 
 if __name__ == '__main__':

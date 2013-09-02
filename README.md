@@ -35,6 +35,9 @@ ISSUES
     the client wants to use a cloud solution, it is probably wiser to not
     take the hit.
 
+  - to summarise this block: probably best to leave the paths hardcoded.
+
+
 - /c not protected by HTTP Basic Auth
   - the notes further below state that /c should be protected by HTTP Basic
     Auth. but the request to /c is issued by the user's browser (at least in
@@ -53,7 +56,11 @@ ISSUES
     a new model would also be required and it seems that most of the wanted
     data can be grabbed from os.environ (when using webapp2).
 
-
+- POST to static files
+  - should the static JS/HTML files really be 'uploaded' by POSTing to their
+    URL? wouldn't it be more maintainable to have a git hook that will deploy
+    to the app engine server automatically once these files have been changed
+    in the repository?
 
 NOTES
 -----
