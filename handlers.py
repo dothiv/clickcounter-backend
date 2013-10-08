@@ -98,6 +98,9 @@ class Count(webapp2.RequestHandler):
 
     # explicit request to have content-type application/json
     self.response.headers['Content-Type'] = 'application/json'
+    # allow origin
+    if 'Origin' in self.request.headers:
+      self.response.headers['Access-Control-Allow-Origin'] = self.request.headers['Origin']
     self.response.write(domain.get_json())
 
 
@@ -125,7 +128,7 @@ class StaticServe(webapp2.RequestHandler):
     else:
       self.response.write(static_file.content)
       self.response.set_status(200)
-      self.response.headers['Content-Type'] = str(static_file.content_type)
+      self.response.headers['Content-Type'] = 'text/html'
       self.response.headers['Access-Control-Allow-Origin'] = '*'
 
 
