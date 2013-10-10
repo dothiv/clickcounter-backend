@@ -89,7 +89,9 @@ class Count(webapp2.RequestHandler):
 
     domain = get_domain_or_404(params['domain'])
     if 'from' in params and 'firstvisit' in params:
-      if params['from'] == 'inside' and params['firstvisit'] == 'true':
+      # count clicks from outside the iframe that are the first visit
+      # we may need to count clicks with from=inside as well, work in progress
+      if params['from'] == 'outside' and params['firstvisit'] == 'true':
         # maybe use a transaction for these two independent database
         # operations? maybe not: it doesn't really matter if an entity of
         # UserData could be put while Domain failed or vice versa.
