@@ -130,7 +130,7 @@ class StaticServe(webapp2.RequestHandler):
     else:
       self.response.write(static_file.content)
       self.response.set_status(200)
-      self.response.headers['Content-Type'] = 'text/html'
+      self.response.headers['Content-Type'] = static_file.content_type
       self.response.headers['Access-Control-Allow-Origin'] = '*'
 
 
