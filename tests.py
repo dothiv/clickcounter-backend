@@ -124,7 +124,7 @@ class TestCase(unittest.TestCase):
     self.assertEqual(response.body, body)
 
 
-  def test_c_post_nocount(self):
+  def test_c_post_count(self):
     self._create_config()
 
     # all values should still be 0 on firstvisit == false
@@ -132,20 +132,17 @@ class TestCase(unittest.TestCase):
     body = '{ "clickcount":0, "money":0.0, "status":0.0}'
     self._test_c_post(uri, body)
 
-    # all values should still be 0 on from == outside
+    # from == outside and firstvisit increases counter
     uri = '/c?domain=' + self.domain + '&firstvisit=true&from=outside'
-    self._test_c_post(uri, body)
-
-
-  def test_c_post_count(self):
-    self._create_config()
-
-    # this should count
-    uri = '/c?domain=' + self.domain + '&firstvisit=true&from=inside'
     body = '{ "clickcount":1, "money":0.001, "status":0.0000002}'
     self._test_c_post(uri, body)
 
+    # this should not count
+    uri = '/c?domain=' + self.domain + '&firstvisit=true&from=inside'
+    self._test_c_post(uri, body)
+
     # this should count again
+    uri = '/c?domain=' + self.domain + '&firstvisit=true&from=outside'
     body = '{ "clickcount":2, "money":0.002, "status":0.0000004}'
     self._test_c_post(uri, body)
 
