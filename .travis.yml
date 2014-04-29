@@ -3,13 +3,8 @@ language: python
 python:
   - '2.7'
  
-install: 
-  - 'pip install -r requirements.txt --use-mirrors'
- 
 before_script:
   - wget http://googleappengine.googlecode.com/files/google_appengine_1.8.9.zip -nv
   - unzip -q google_appengine_1.8.9.zip
-  - pip install webtest==2.0.6
-  - pip install nosegae==0.2.0
- 
-script: 'nosetests --with-gae --gae-lib-root=google_appengine'
+
+script: './tests.py'
