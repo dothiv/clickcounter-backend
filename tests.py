@@ -2,7 +2,7 @@
 import unittest, os, sys, base64, datetime
 
 # get app engine's resources
-SDK_PATH = sys.argv.pop() or '../google_appengine'
+SDK_PATH = sys.argv.pop() if len(sys.argv) > 1 else './google_appengine'
 
 print 'Using SDK path %s' % SDK_PATH
 
