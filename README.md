@@ -2,6 +2,8 @@ clickcounter-backend
 
 ====================
 
+[![Build Status](https://travis-ci.org/dothiv/clickcounter-backend.svg)](https://travis-ci.org/dothiv/clickcounter-backend)
+
 The Google App Engine cloud app that supports the Click Counter.
 
 Access
