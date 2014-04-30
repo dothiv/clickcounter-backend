@@ -24,12 +24,12 @@ class TestCase(unittest.TestCase):
     self.testbed.activate()
     self.testbed.init_datastore_v3_stub()
     self.testbed.init_memcache_stub()
+    self.testbed.init_taskqueue_stub()
     self.auth_header= (
       'Authorization', 'Basic %s' % base64.b64encode(':' + AUTH_SECRET)
     )
     self.domain = 'foobar'
     self.uri_config = '/config/' + self.domain
-
 
   def tearDown(self):
     self.testbed.deactivate()

@@ -7,6 +7,8 @@ from decorators import basic_auth
 from webapp2_extras import json
 from util import Format
 from google.appengine.api import memcache
+from google.appengine.ext import deferred
+from jobs import update_total_clicks
 
 def get_domain_or_404(name, allow_none=False):
   """Gets a domain entity for the given name.
@@ -75,6 +77,12 @@ def createDomainConfig(domain):
     return json.encode(config)
 
 
+def initClicksTotal():
+    """
+    Initialize the memcached total click counter
+    """
+    memcache.set('clicks_total', 1)
+    deferred.defer(update_total_clicks)
 
 class Index(webapp2.RequestHandler):
     """
