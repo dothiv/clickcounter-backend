@@ -15,8 +15,14 @@ except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
 # how many EUR to increment on click; added to field 'money'
 EUR_INCREMENT = 0.001
 
-# total budget available; used to calculate status
-EUR_TOTAL = 500000
+# number of clicks in past stretches
+ALREADY_CLICKED = 0
+
+# money already raised from past stretches
+ALREADY_DONATED = 0
+
+# budget available in current stretch; used to calculate status
+EUR_GOAL = 50000
 
 # project root directory
 PROJECT_DIR = os.path.dirname(__file__)

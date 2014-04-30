@@ -1,10 +1,12 @@
 # app handlers
 import webapp2
 
-from settings import JINJA_ENVIRONMENT
+from settings import JINJA_ENVIRONMENT, ALREADY_DONATED, ALREADY_CLICKED, EUR_GOAL, EUR_INCREMENT
 from models import Domain, StaticFile, UserData
 from decorators import basic_auth
-
+from webapp2_extras import json
+from util import Format
+from google.appengine.api import memcache
 
 def get_domain_or_404(name, allow_none=False):
   """Gets a domain entity for the given name.
@@ -19,6 +21,58 @@ def get_domain_or_404(name, allow_none=False):
     webapp2.abort(404)
 
   return domain
+
+
+def createDomainConfig(domain):
+    """
+    TODO: Cache?
+    """
+    config = json.decode('{%s}' % domain.content) if domain.content else {}
+
+    # Fetch global values
+    m = memcache.get_multi(['clicks_total', 'already_donated', 'already_clicked', 'eur_goal'])
+    if 'already_clicked' not in m:
+        memcache.set('already_clicked', ALREADY_CLICKED)
+        already_clicked = ALREADY_CLICKED
+    else:
+        already_clicked = m['already_clicked']
+
+    if 'already_donated' not in m:
+        memcache.set('already_donated', ALREADY_DONATED)
+        already_donated = ALREADY_DONATED
+    else:
+        already_donated = m['already_donated']
+
+    if 'eur_goal' not in m:
+        memcache.set('eur_goal', EUR_GOAL)
+        goal = EUR_GOAL
+    else:
+        goal = m['eur_goal']
+
+    clicks_total = m['clicks_total'] if 'clicks_total' in m else 0
+    clicks = clicks_total - already_clicked
+
+    ## Plain values
+    config['donated'] = float(already_donated)
+    unlocked = clicks * EUR_INCREMENT
+    config['unlocked'] = unlocked
+    config['percent'] = unlocked / goal
+    config['clicks'] = clicks
+    config['increment'] = EUR_INCREMENT
+
+    # Create labels
+    f = Format(config["locale"] if "locale" in config else None)
+    labels = {
+        'donated': f.decimalMoney(already_donated),
+        'unlocked': f.money(unlocked),
+        'clicks': f.decimal(clicks),
+        'increment': f.float(EUR_INCREMENT * 100.0)
+    }
+    for key in config:
+        if isinstance(config[key], basestring):
+            config[key] = config[key].format(**labels)
+
+    return json.encode(config)
 
 
 

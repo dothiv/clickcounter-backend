@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import unittest, os, sys, base64, datetime
+import os, sys, base64, unittest
 
 # get app engine's resources
 SDK_PATH = sys.argv.pop() if len(sys.argv) > 1 else './google_appengine'
@@ -10,12 +10,13 @@ sys.path.insert(0, SDK_PATH)
 import dev_appserver
 dev_appserver.fix_sys_path()
 from webapp2 import Request
+from webapp2_extras import json
 from google.appengine.ext import testbed
 
 from main import application
 from settings import AUTH_SECRET
 from models import Domain, UserData
-
+from google.appengine.api import memcache
 
 class TestCase(unittest.TestCase):
   def setUp(self):
@@ -57,10 +58,10 @@ class TestCase(unittest.TestCase):
     self.assertEqual(response.status_int, 204)
     self.assertEqual(response.body, '')
 
-    body = '{"foo":"bar", "clickcount":0, "money":0.0, "status":0.0}'
+    body = '{"foo":"bar", "clicks":0, "donated":0.0, "unlocked": 0.0, "percent":0.0, "increment": 0.001}'
     request = Request.blank(self.uri_config, headers=[self.auth_header])
     response = request.get_response(application)
-    self.assertEqual(response.body, body)
+    self._compareJson(response.body, body)
 
 
   def test_config_get_fail(self):
@@ -121,20 +122,32 @@ class TestCase(unittest.TestCase):
     request.method = 'POST'
     response = request.get_response(application)
     self.assertEqual(response.status_int, 200)
-    self.assertEqual(response.body, body)
+    self._compareJson(response.body, body)
 
+  def _sortDict(self, d):
+    r = {}
+    for k in sorted(d.iterkeys()):
+      r[k] = d[k]
+    return r
+
+
+  def _compareJson(self, actual, expected):
+      self.assertEqual(json.encode(self._sortDict(json.decode(actual))), json.encode(self._sortDict(json.decode(expected))))
 
   def test_c_post_count(self):
     self._create_config()
 
+    memcache.set('already_donated', 0)
+    memcache.set('eur_goal', 1)
+
     # all values should still be 0 on firstvisit == false
     uri = '/c?domain=' + self.domain + '&firstvisit=false&from=inside'
-    body = '{ "clickcount":0, "money":0.0, "status":0.0}'
+    body = '{"clicks":0, "donated":0.0, "unlocked": 0.0, "percent":0.0, "increment": 0.001}'
     self._test_c_post(uri, body)
 
     # from == outside and firstvisit increases counter
     uri = '/c?domain=' + self.domain + '&firstvisit=true&from=outside'
-    body = '{ "clickcount":1, "money":0.001, "status":0.0000002}'
+    body = '{"clicks":1, "donated":0.0, "unlocked": 0.001, "percent":0.001, "increment": 0.001}'
     self._test_c_post(uri, body)
 
     # this should not count
@@ -143,16 +156,10 @@ class TestCase(unittest.TestCase):
 
     # this should count again
     uri = '/c?domain=' + self.domain + '&firstvisit=true&from=outside'
-    body = '{ "clickcount":2, "money":0.002, "status":0.0000004}'
+    body = '{"clicks":2, "donated":0.0, "unlocked": 0.002, "percent":0.002, "increment": 0.001}'
     self._test_c_post(uri, body)
 
-
-  def test_domain_python_to_json_float(self):
-    to_json = Domain(name='').python_to_json_float
-    self.assertEqual(to_json(0), '0.0')
-    self.assertEqual(to_json(0.), '0.0')
-    self.assertEqual(to_json(4.50000), '4.5')
-    self.assertEqual(to_json(1e-07), '0.0000001')
+    self.assertEquals(2, memcache.get('clicks_total'))
 
 
   def test_userdata_add(self):
@@ -248,6 +255,26 @@ class TestCase(unittest.TestCase):
       uri='/static/banner.no-content-type',
       body='plain text')
 
+  def test_config_replacement(self):
+    d = 500000
+    memcache.set('already_clicked', d * 1000)
+    memcache.set('clicks_total', d * 1000 + 3333333)
+    memcache.set('already_donated', d)
+    memcache.set('eur_goal', 50000)
+    self._create_config(
+      '"locale": "de","subheading":"Jeder Klick hilft mit {increment} ct","activated":"Bereits {donated} gespendet:","money":"{unlocked}","clickcount":"{clicks} Klicks"'
+    )
+    uri = '/c?domain=' + self.domain + '&firstvisit=true&from=inside'
+    request = Request.blank(uri, headers=[self.auth_header])
+    request.method = 'POST'
+    response = request.get_response(application)
+    config = json.decode(response.body)
+    self.assertEqual("Bereits 500.000 &euro; gespendet:", str(config['activated']))
+    # FIXME: Implement global counting for money, clickcount
+    self.assertEqual("3.333,33 &euro;", str(config['money']))
+    self.assertEqual("3.333.333 Klicks", str(config['clickcount']))
+    self.assertEqual("Jeder Klick hilft mit 0,1 ct", str(config['subheading']))
+    self.assertEqual(round(3333.33 / 50000, 3), round(config['percent'], 3))
 
 if __name__ == '__main__':
     unittest.main()

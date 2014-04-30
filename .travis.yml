@@ -7,4 +7,4 @@ before_script:
   - wget http://googleappengine.googlecode.com/files/google_appengine_1.8.9.zip -nv
   - unzip -q google_appengine_1.8.9.zip
 
-script: './tests.py'
+script: './.travis-script.sh'
