@@ -34,9 +34,14 @@ class Format(object):
         """
         number = float(number) * ratio
         if self.isDe():
-            pre, post = "{0:,.2f} &euro;".format(number).split('.')
+            if number < 0.01: # Cent
+                pre, post = "{0:.1f} ct".format(number * 100).split('.')
+            else:
+                pre, post = "{0:,.2f} &euro;".format(number).split('.')
             pre = pre.replace(',', '.')
             return ','.join((pre, post))
+        if number < 0.01: # Cent
+            return "{0:.1f}&cent;".format(number * 100)
         return "${0:,.2f}".format(number)
 
     def decimalMoney(self, number, ratio=1.0):
