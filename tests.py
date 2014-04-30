@@ -15,8 +15,9 @@ from google.appengine.ext import testbed
 
 from main import application
 from settings import AUTH_SECRET
-from models import Domain, UserData
+from models import UserData
 from google.appengine.api import memcache
+import pickle
 
 class TestCase(unittest.TestCase):
   def setUp(self):
@@ -32,6 +33,17 @@ class TestCase(unittest.TestCase):
     self.uri_config = '/config/' + self.domain
 
   def tearDown(self):
+    # Run pending jobs
+    taskq = self.testbed.get_stub(testbed.TASKQUEUE_SERVICE_NAME)
+    tasks = taskq.GetTasks("default")
+    taskq.FlushQueue("default")
+    while tasks:
+        for task in tasks:
+            (func, args, opts) = pickle.loads(base64.b64decode(task["body"]))
+            func(*args)
+        tasks = taskq.GetTasks("default")
+        taskq.FlushQueue("default")
+
     self.testbed.deactivate()
 
 
