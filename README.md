@@ -4,14 +4,6 @@
 
 The Google App Engine cloud app that supports the Click Counter.
 
-## Access
-
-
-https://dothivtest.appspot.com/
-
-password for authenticated requests: `123123`
-
-
 ## Howto clean database
 
 There is no way to drop all tables. The best would probably to
