@@ -6,5 +6,4 @@ application = webapp2.WSGIApplication([
     ('/', 'handlers.Index'),
     (r'/config/(.*)', 'handlers.Config'),
     (r'/c/?', 'handlers.Count'),
-    (r'/static/(.*)', 'handlers.StaticServe'),
 ], debug=True)

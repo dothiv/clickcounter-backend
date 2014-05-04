@@ -21,12 +21,6 @@ class Domain(ndb.Model):
     self.money += EUR_INCREMENT
     self.put()
 
-
-class StaticFile(ndb.Model):
-  name = ndb.StringProperty(indexed=True, required=True)
-  content = ndb.TextProperty()
-  content_type = ndb.StringProperty(required=True)
-
 class UserData(ndb.Model):
   remote_addr = ndb.StringProperty()
   http_user_agent = ndb.StringProperty()

@@ -2,7 +2,7 @@
 import webapp2
 
 from settings import JINJA_ENVIRONMENT, ALREADY_DONATED, ALREADY_CLICKED, EUR_GOAL, EUR_INCREMENT
-from models import Domain, StaticFile, UserData
+from models import Domain, UserData
 from decorators import basic_auth
 from webapp2_extras import json
 from util import Format
@@ -168,44 +168,3 @@ class Count(webapp2.RequestHandler):
         if 'Origin' in self.request.headers:
             self.response.headers['Access-Control-Allow-Origin'] = self.request.headers['Origin']
         self.response.write(createDomainConfig(domain))
-
-
-class StaticServe(webapp2.RequestHandler):
-    @basic_auth
-    def post(self, file_name):
-        static_file = StaticFile.query(StaticFile.name == file_name).get()
-        if not static_file:
-            static_file = StaticFile(name=file_name)
-
-        static_file.content = self.request.body
-        static_file.content_type = self.get_content_type(
-            self.request.headers, file_name)
-        static_file.put()
-
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.set_status(204)
-
-
-    def get(self, file_name):
-        static_file = StaticFile.query(StaticFile.name == file_name).get()
-        if not static_file:
-            self.abort(404)
-        else:
-            self.response.write(static_file.content)
-            self.response.set_status(200)
-            self.response.headers['Content-Type'] = str(static_file.content_type)
-            self.response.headers['Access-Control-Allow-Origin'] = '*'
-
-
-    def get_content_type(self, headers, file_name):
-        if 'Content-Type' in headers:
-            content_type = headers['Content-Type']
-        else:
-            file_extension = file_name.split('.')[-1]
-            if file_extension == 'js':
-                content_type = 'application/javascript'
-            elif file_extension == 'html':
-                content_type = 'text/html'
-            else:
-                content_type = 'text/plain'
-        return content_type
