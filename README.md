@@ -64,7 +64,7 @@ save the domain data, setup the domain with clicks 0, status 0 and money to 0 if
         URL: /config/{domain}
         method: POST
         headers:
-          Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ== //equivalent to Base64("Aladdin:open sesame")
+          Authorization: Basic OnNvbWVzZWNyZXQ= // equivalent to Base64(":somesecret")
         body: what_ever_content
     response:
         headers:
@@ -80,7 +80,7 @@ return the data about the domain name.
         URL: /config/{domainname}
         method: GET
         headers:
-          Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ== //equivalent to Base64("Aladdin:open sesame")
+          Authorization: Basic OnNvbWVzZWNyZXQ= // equivalent to Base64(":somesecret")
         body:
     response:
         headers:
@@ -95,7 +95,7 @@ return the data about the domain name.
         URL: /config/{domainname}
         method: DELELTE
         headers:
-          Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ== //equivalent to Base64("Aladdin:open sesame")
+          Authorization: Basic OnNvbWVzZWNyZXQ= // equivalent to Base64(":somesecret")
         body:
     response:
         headers:
@@ -127,3 +127,9 @@ increment the number of visit for the domain name if fistvisit is true and from 
           "money": 1213123, # inc by 0.1 per click
           "status": 1212 # 500 000 == 100%
         }
+
+### Authorization
+
+Configuration updating endpoints are protected with basic auth. The password is generated on the first access
+of the endpoint and can be changed via the AppEngine Console's DataStore Viewer. Look for a `Config` entity with the
+key `auth_secret`.
