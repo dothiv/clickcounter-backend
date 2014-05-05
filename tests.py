@@ -14,8 +14,8 @@ from webapp2_extras import json
 from google.appengine.ext import testbed
 
 from main import application
-from settings import AUTH_SECRET
 from models import UserData
+from settings import get_auth_secret, set_auth_secret
 from google.appengine.api import memcache
 import pickle
 
@@ -26,8 +26,9 @@ class TestCase(unittest.TestCase):
     self.testbed.init_datastore_v3_stub()
     self.testbed.init_memcache_stub()
     self.testbed.init_taskqueue_stub()
+    set_auth_secret("somesecret")
     self.auth_header= (
-      'Authorization', 'Basic %s' % base64.b64encode(':' + AUTH_SECRET)
+      'Authorization', 'Basic %s' % base64.b64encode(':somesecret')
     )
     self.domain = 'foobar'
     self.uri_config = '/config/' + self.domain

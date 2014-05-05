@@ -1,16 +1,6 @@
 # app settings
 import os, jinja2
-import ConfigParser
 import random, string
-
-# secret to use for HTTP Basic Auth (/config)
-AUTH_SECRET = ''.join(random.choice(string.lowercase) for i in range(10))
-config = ConfigParser.RawConfigParser()
-try:
-  config.read('authenticationSecret.cfg')
-  AUTH_SECRET = config.get('Authentication', 'secret')
-except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-  pass
 
 # how many EUR to increment on click; added to field 'money'
 EUR_INCREMENT = 0.001
@@ -34,3 +24,27 @@ TEMPLATE_DIR = os.path.join(PROJECT_DIR, 'templates')
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
     extensions=['jinja2.ext.autoescape'])
+
+
+def set_auth_secret(secret):
+    """
+    Sets the auth secret.
+    """
+    from models import Config
+    secret_config = Config()
+    secret_config.key = "auth_secret"
+    secret_config.value = secret
+    secret_config.put()
+
+
+def get_auth_secret():
+    """
+    Returns the secret required to update the click counter configuration.
+
+    If no secret is configured, a random secret is generated and persisted.
+    """
+    from models import Config
+    secret_config = Config.query(Config.key == "auth_secret").get()
+    if not secret_config:
+        set_auth_secret(''.join(random.choice(string.lowercase) for i in range(10)))
+    return secret_config.value

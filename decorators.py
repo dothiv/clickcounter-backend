@@ -1,6 +1,6 @@
 # app decorators
 import base64
-from settings import AUTH_SECRET
+from settings import get_auth_secret
 
 
 def basic_auth(func):
@@ -13,7 +13,7 @@ def basic_auth(func):
         secret = base64.b64decode(auth_header.split(' ')[1]).split(':')[1:]
         # join by colon after user:password split
         secret = ':'.join(secret)
-        if secret == AUTH_SECRET:
+        if secret == get_auth_secret():
           return func(request, *args, **kwargs)
       except IndexError:
         pass

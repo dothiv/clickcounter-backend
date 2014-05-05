@@ -35,3 +35,11 @@ class UserData(ndb.Model):
       referer = request.referer,
       domain=domain)
     user_data.put()
+
+
+class Config(ndb.Model):
+    """
+    Model used to store arbitrary configuration data
+    """
+    key = ndb.StringProperty(indexed=True, required=True)
+    value = ndb.StringProperty(required=True)
