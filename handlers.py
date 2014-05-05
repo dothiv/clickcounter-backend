@@ -68,7 +68,7 @@ def createDomainConfig(domain):
         'donated': f.decimalMoney(already_donated),
         'unlocked': f.money(unlocked),
         'clicks': f.decimal(clicks),
-        'increment': f.float(EUR_INCREMENT * 100.0)
+        'increment': f.money(EUR_INCREMENT)
     }
     for key in config:
         if isinstance(config[key], basestring):

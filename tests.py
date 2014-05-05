@@ -201,7 +201,7 @@ class TestCase(unittest.TestCase):
     memcache.set('already_donated', d)
     memcache.set('eur_goal', 50000)
     self._create_config(
-      '"locale": "de","subheading":"Jeder Klick hilft mit {increment} ct","activated":"Bereits {donated} gespendet:","money":"{unlocked}","clickcount":"{clicks} Klicks"'
+      '"locale": "de","subheading":"Jeder Klick hilft mit {increment}","activated":"Bereits {donated} gespendet:","money":"{unlocked}","clickcount":"{clicks} Klicks"'
     )
     uri = '/c?domain=' + self.domain + '&firstvisit=true&from=inside'
     request = Request.blank(uri, headers=[self.auth_header])
