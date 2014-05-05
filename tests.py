@@ -26,9 +26,9 @@ class TestCase(unittest.TestCase):
     self.testbed.init_datastore_v3_stub()
     self.testbed.init_memcache_stub()
     self.testbed.init_taskqueue_stub()
-    set_auth_secret("somesecret")
+    cfg = set_auth_secret("somesecret")
     self.auth_header= (
-      'Authorization', 'Basic %s' % base64.b64encode(':somesecret')
+      'Authorization', 'Basic %s' % base64.b64encode(':' + cfg.value)
     )
     self.domain = 'foobar'
     self.uri_config = '/config/' + self.domain

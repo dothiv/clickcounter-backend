@@ -35,6 +35,7 @@ def set_auth_secret(secret):
     secret_config.key = "auth_secret"
     secret_config.value = secret
     secret_config.put()
+    return secret_config
 
 
 def get_auth_secret():
@@ -46,5 +47,5 @@ def get_auth_secret():
     from models import Config
     secret_config = Config.query(Config.key == "auth_secret").get()
     if not secret_config:
-        set_auth_secret(''.join(random.choice(string.lowercase) for i in range(10)))
+        secret_config = set_auth_secret(''.join(random.choice(string.lowercase) for i in range(10)))
     return secret_config.value
