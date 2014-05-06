@@ -14,7 +14,6 @@ from webapp2_extras import json
 from google.appengine.ext import testbed
 
 from main import application
-from models import UserData
 from settings import get_auth_secret, set_auth_secret, get_test_mode, set_test_mode
 from google.appengine.api import memcache
 import pickle
@@ -174,25 +173,6 @@ class TestCase(unittest.TestCase):
     self._test_c_post(uri, body)
 
     self.assertEquals(2, memcache.get('clicks_total'))
-
-
-  def test_userdata_add(self):
-    remote_addr = '127.0.0.1'
-    http_user_agent = 'foo agent'
-    domain = 'foobar'
-    referer = None
-
-    class Request(object): pass
-    request = Request()
-    request.headers = {'HTTP_USER_AGENT': http_user_agent}
-    request.referer = referer
-    os.environ['REMOTE_ADDR'] = remote_addr
-    UserData.add(request, domain)
-
-    user_data = UserData.query(UserData.domain==domain).get()
-    self.assertEqual(user_data.remote_addr, remote_addr)
-    self.assertEqual(user_data.http_user_agent, http_user_agent)
-    self.assertEqual(user_data.referer, referer)
 
 
   def test_config_replacement(self):

@@ -21,21 +21,6 @@ class Domain(ndb.Model):
     self.money += EUR_INCREMENT
     self.put()
 
-class UserData(ndb.Model):
-  remote_addr = ndb.StringProperty()
-  http_user_agent = ndb.StringProperty()
-  referer = ndb.StringProperty()
-  domain = ndb.StringProperty()
-  date_time = ndb.DateTimeProperty(auto_now_add=True)
-
-  @classmethod
-  def add(cls, request, domain):
-    user_data = cls(remote_addr=os.environ.get('REMOTE_ADDR',None),
-      http_user_agent= request.headers.get('HTTP_USER_AGENT', None),
-      referer = request.referer,
-      domain=domain)
-    user_data.put()
-
 
 class Config(ndb.Model):
     """

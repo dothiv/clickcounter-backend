@@ -2,7 +2,7 @@
 import webapp2
 
 from settings import JINJA_ENVIRONMENT, ALREADY_DONATED, ALREADY_CLICKED, EUR_GOAL, EUR_INCREMENT, get_test_mode
-from models import Domain, UserData
+from models import Domain
 from decorators import basic_auth
 from webapp2_extras import json
 from util import Format
@@ -160,13 +160,9 @@ class Count(webapp2.RequestHandler):
             # count clicks from outside the iframe that are the first visit
             # we may need to count clicks with from=inside as well, work in progress
             if params['from'] == 'outside' and params['firstvisit'] == 'true':
-                # maybe use a transaction for these two independent database
-                # operations? maybe not: it doesn't really matter if an entity of
-                # UserData could be put while Domain failed or vice versa.
                 domain.increment_counter()
                 if memcache.incr("clicks_total") is None:
                     initClicksTotal()
-                UserData.add(self.request, params['domain'])
 
         # explicit request to have content-type application/json
         self.response.headers['Content-Type'] = 'application/json'
