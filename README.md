@@ -110,7 +110,7 @@ increment the number of visit for the domain and populate domain configuration.
           code: 200
         body: …
 
-See [#5](/dothiv/clickcounter-backend/pull/5) for an explanation of the request parameters.
+See [#5](https://github.com/dothiv/clickcounter-backend/pull/5) for an explanation of the request parameters.
 
 See [banner's demo.json](https://github.com/dothiv/banner/blob/master/src/demo.json) for an example response.
 
