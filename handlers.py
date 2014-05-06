@@ -1,7 +1,7 @@
 # app handlers
 import webapp2
 
-from settings import JINJA_ENVIRONMENT, ALREADY_DONATED, ALREADY_CLICKED, EUR_GOAL, EUR_INCREMENT, get_test_mode
+from settings import JINJA_ENVIRONMENT, ALREADY_DONATED, ALREADY_CLICKED, EUR_GOAL, EUR_INCREMENT, get_test_mode, COUNT_THRESHOLD
 from models import Domain
 from decorators import basic_auth
 from webapp2_extras import json
@@ -90,6 +90,13 @@ def initClicksTotal():
     memcache.set('clicks_total', 1)
     deferred.defer(update_total_clicks)
 
+
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    def __init__(self, message):
+        self.message = message
+
+
 class Index(webapp2.RequestHandler):
     """
     Handler Index
@@ -156,13 +163,40 @@ class Count(webapp2.RequestHandler):
             self.abort(404)
 
         domain = get_domain_or_404(params['domain'])
-        if 'from' in params and 'firstvisit' in params:
-            # count clicks from outside the iframe that are the first visit
-            # we may need to count clicks with from=inside as well, work in progress
-            if params['from'] == 'outside' and params['firstvisit'] == 'true':
-                domain.increment_counter()
-                if memcache.incr("clicks_total") is None:
-                    initClicksTotal()
+        # count clicks from outside the iframe that have a previous (pt) and current (ct) visit timestamp
+        # previous timestamp may be empty if the client has no record of this user having visited the domain before)
+        # current timestamp may not be empty
+        # for simplicity timestamps are expressed as integers (unix timestamps) in the users timezone
+        try:
+            if 'from' in params and 'pt' in params and 'ct' in params:
+                if params['from'] == 'outside':
+                    current_visit = int(params['ct']) if params['ct'] != "" else 0
+                    if current_visit < 1397340000000:
+                        raise Error("Invalid value for 'ct': '%s'" % params['ct'])
+
+                    previous_visit = int(params['pt']) if params['pt'] != "" else current_visit - COUNT_THRESHOLD
+                    if previous_visit < 1397340000000:
+                        raise Error("Invalid value for 'pt': '%s'" % params['pt'])
+
+                    if current_visit < previous_visit:
+                        raise Error("Value '%s' for 'ct' must be greater or equal than value '%s' for 'pt'" % (params['ct'], params['pt']))
+
+                    if current_visit - previous_visit >= COUNT_THRESHOLD:
+                        domain.increment_counter()
+                        if memcache.incr("clicks_total") is None:
+                            initClicksTotal()
+        except Error as e:
+            self.response.headers['Content-Type'] = 'application/api-problem+json'
+            self.response.set_status(403)
+            self.response.write(
+                json.encode(
+                    {
+                        "problemType": "https://github.com/dothiv/clickcounter-backend/wiki/problem-invalid-request",
+                        "title": "%s" % e.message
+                    }
+                )
+            )
+            return
 
         # explicit request to have content-type application/json
         self.response.headers['Content-Type'] = 'application/json'
