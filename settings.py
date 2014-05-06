@@ -2,6 +2,20 @@
 import os, jinja2
 import random, string
 
+# We are currently in test mode, the funding phase has not started yet
+# TODO: remove once we are live
+TEST_MODE = True
+
+
+def get_test_mode():
+    return TEST_MODE
+
+
+def set_test_mode(mode):
+    global TEST_MODE
+    TEST_MODE = mode
+
+
 # how many EUR to increment on click; added to field 'money'
 EUR_INCREMENT = 0.001
 

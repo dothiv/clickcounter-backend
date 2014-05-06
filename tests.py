@@ -15,7 +15,7 @@ from google.appengine.ext import testbed
 
 from main import application
 from models import UserData
-from settings import get_auth_secret, set_auth_secret
+from settings import get_auth_secret, set_auth_secret, get_test_mode, set_test_mode
 from google.appengine.api import memcache
 import pickle
 
@@ -32,6 +32,7 @@ class TestCase(unittest.TestCase):
     )
     self.domain = 'foobar'
     self.uri_config = '/config/' + self.domain
+    set_test_mode(False)
 
   def tearDown(self):
     # Run pending jobs
