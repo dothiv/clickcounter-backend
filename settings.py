@@ -28,6 +28,9 @@ ALREADY_DONATED = 0
 # budget available in current stretch; used to calculate status
 EUR_GOAL = 50000
 
+# threshold between visits in microseconds to count as individual visits
+COUNT_THRESHOLD = 60 * 1000
+
 # project root directory
 PROJECT_DIR = os.path.dirname(__file__)
 

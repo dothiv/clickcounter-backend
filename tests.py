@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, sys, base64, unittest
+import os, sys, base64, unittest, time
 
 # get app engine's resources
 SDK_PATH = sys.argv.pop() if len(sys.argv) > 1 else './google_appengine'
@@ -14,7 +14,7 @@ from webapp2_extras import json
 from google.appengine.ext import testbed
 
 from main import application
-from settings import get_auth_secret, set_auth_secret, get_test_mode, set_test_mode
+from settings import get_auth_secret, set_auth_secret, get_test_mode, set_test_mode, COUNT_THRESHOLD
 from google.appengine.api import memcache
 import pickle
 
@@ -129,12 +129,12 @@ class TestCase(unittest.TestCase):
     self.assertEqual(response.status_int, 404)
 
 
-  def _test_c_post(self, uri, body):
+  def _test_c_post(self, uri, body, status=200):
     """Helper to actually test posting to /c, depending on uri and body."""
     request = Request.blank(uri, headers=[self.auth_header])
     request.method = 'POST'
     response = request.get_response(application)
-    self.assertEqual(response.status_int, 200)
+    self.assertEqual(response.status_int, status)
     self._compareJson(response.body, body)
 
   def _sortDict(self, d):
@@ -153,27 +153,45 @@ class TestCase(unittest.TestCase):
     memcache.set('already_donated', 0)
     memcache.set('eur_goal', 1)
 
-    # all values should still be 0 on firstvisit == false
-    uri = '/c?domain=' + self.domain + '&firstvisit=false&from=inside'
+    # all values should still be 0 after request from inside
+    uri = '/c?domain=' + self.domain + '&from=inside'
     body = '{"clicks":0, "donated":0.0, "unlocked": 0.0, "percent":0.0, "increment": 0.001}'
     self._test_c_post(uri, body)
 
-    # from == outside and firstvisit increases counter
-    uri = '/c?domain=' + self.domain + '&firstvisit=true&from=outside'
+    # from == outside, no previous visit, with current timestamp increases counter
+    now = int(time.time() * 1000)
+    current_time = "%d" % now
+    uri = '/c?domain=' + self.domain + '&from=outside&pt=&ct=' + current_time
     body = '{"clicks":1, "donated":0.0, "unlocked": 0.001, "percent":0.001, "increment": 0.001}'
     self._test_c_post(uri, body)
 
-    # this should not count
-    uri = '/c?domain=' + self.domain + '&firstvisit=true&from=inside'
+    # from == outside, previous visit 1 second before current timestamp does not increase counter
+    uri = '/c?domain=' + self.domain + '&from=outside&pt=' + ("%s" % (now - 1)) + '&ct=' + current_time
     self._test_c_post(uri, body)
 
-    # this should count again
-    uri = '/c?domain=' + self.domain + '&firstvisit=true&from=outside'
+    # from == outside, previous visit before current timestamp increases counter
+    uri = '/c?domain=' + self.domain + '&from=outside&pt=' + ("%s" % (now - COUNT_THRESHOLD)) + '&ct=' + current_time
     body = '{"clicks":2, "donated":0.0, "unlocked": 0.002, "percent":0.002, "increment": 0.001}'
     self._test_c_post(uri, body)
 
     self.assertEquals(2, memcache.get('clicks_total'))
 
+  def test_c_post_error(self):
+    self._create_config()
+    now = time.time() * 1000
+    current_time = "%d" % now
+    body_template = '{"problemType":"https://github.com/dothiv/clickcounter-backend/wiki/problem-invalid-request","title":"%s"}'
+    # Error on invalid ct
+    body=body_template % "Invalid value for 'ct': ''"
+    self._test_c_post('/c?domain=' + self.domain + '&from=outside&pt=&ct=', body, status=403)
+    body=body_template % "Invalid value for 'ct': '1234'"
+    self._test_c_post('/c?domain=' + self.domain + '&from=outside&pt=&ct=1234', body, status=403)
+    # Error on invalid pt
+    body=body_template % "Invalid value for 'pt': '1234'"
+    self._test_c_post('/c?domain=' + self.domain + '&from=outside&pt=1234&ct=' + current_time, body, status=403)
+    pt_to_high = "%d" % (now + 1)
+    body=body_template % ("Value '" + current_time + "' for 'ct' must be greater or equal than value '" + pt_to_high + "' for 'pt'")
+    self._test_c_post('/c?domain=' + self.domain + '&from=outside&pt=' + pt_to_high + '&ct=' + current_time, body, status=403)
 
   def test_config_replacement(self):
     d = 500000
@@ -184,7 +202,7 @@ class TestCase(unittest.TestCase):
     self._create_config(
       '"locale": "de","subheading":"Jeder Klick hilft mit {increment}","activated":"Bereits {donated} gespendet:","money":"{unlocked}","clickcount":"{clicks} Klicks"'
     )
-    uri = '/c?domain=' + self.domain + '&firstvisit=true&from=inside'
+    uri = '/c?domain=' + self.domain + '&from=inside'
     request = Request.blank(uri, headers=[self.auth_header])
     request.method = 'POST'
     response = request.get_response(application)
