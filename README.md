@@ -91,7 +91,7 @@ return the data about the domain name.
 
 #### increment counter per domain
 
-increment the number of visit for the domain name if fistvisit is true and from is "inside". Other compute the new money amount and status.
+increment the number of visit for the domain and populate domain configuration.
 
     request:
         URL: /c
@@ -101,19 +101,18 @@ increment the number of visit for the domain name if fistvisit is true and from 
         {
           domain: "domainname",
           from: "inside/outside",
-          firstvist: true/false,
+          pt: "" or integer,
+          ct: integer
         }
     response:
         headers:
           content-type: application/json
           code: 200
-        body:
-        {
-          what_ever_content,
-          "clickcount": 12312321,
-          "money": 1213123, # inc by 0.1 per click
-          "status": 1212 # 500 000 == 100%
-        }
+        body: …
+
+See [#5](/dothiv/clickcounter-backend/pull/5) for an explanation of the request parameters.
+
+See [banner's demo.json](https://github.com/dothiv/banner/blob/master/src/demo.json) for an example response.
 
 ### Authorization
 
