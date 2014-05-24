@@ -214,5 +214,26 @@ class TestCase(unittest.TestCase):
     self.assertEqual("Jeder Klick hilft mit 0,1 ct", str(config['subheading']))
     self.assertEqual(round(3333.33 / 50000, 3), round(config['percent'], 3))
 
+  def test_redirects(self):
+    headers = [
+        ('Accept', 'application/json')
+    ]
+    request = Request.blank('/redirects', headers=headers)
+    request.method = 'GET'
+    response = request.get_response(application)
+    self.assertEqual(200, response.status_int)
+    self.assertEqual("application/json", response.headers['Content-Type'])
+    redirects = json.decode(response.body)
+    self.assertEquals(2, len(redirects))
+
+  def test_redirects_not_acceptable(self):
+    headers = [
+        ('Accept', 'text/plain')
+    ]
+    request = Request.blank('/redirects', headers=headers)
+    request.method = 'GET'
+    response = request.get_response(application)
+    self.assertEqual(406, response.status_int)
+
 if __name__ == '__main__':
     unittest.main()

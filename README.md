@@ -114,6 +114,23 @@ See [#5](https://github.com/dothiv/clickcounter-backend/pull/5) for an explanati
 
 See [banner's demo.json](https://github.com/dothiv/banner/blob/master/src/demo.json) for an example response.
 
+#### Fetch configured .hiv domain redirects
+
+We provide a ruleset file which list redirects from regular domains to their .hiv equivalent.
+
+    request:
+        URL: /redirects
+        method: GET
+        headers:
+            Accept: application/json
+    response:
+        headers:
+            Code: 200
+            Content-type: application/json
+            Last-Modified: …
+            ETag: …
+        body: [example](https://github.com/dothiv/banner/blob/master/example/redirects.json)
+
 ### Authorization
 
 Configuration updating endpoints are protected with basic auth. The password is generated on the first access

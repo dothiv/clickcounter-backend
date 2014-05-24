@@ -1,0 +1,22 @@
+[
+  {
+    "hosts": [
+      "dothiv-registry.net",
+      "*.dothiv-registry.net"
+    ],
+    "rules": [
+      {"from": "^http(s)?://(.+\\.)?dothiv-registry\\.de/", "to": "http$1://$2nic.hiv/"}
+    ],
+    "exceptions": []
+  },
+  {
+    "hosts": [
+      "dothiv.org",
+      "*.dothiv.org"
+    ],
+    "rules": [
+      {"from": "^http(s)?://(.+\\.)?dothiv\\.org/", "to": "http$1://$2dot.hiv/"}
+    ],
+    "exceptions": []
+  }
+]

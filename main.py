@@ -4,6 +4,7 @@ import webapp2
 
 application = webapp2.WSGIApplication([
     ('/', 'handlers.Index'),
+    ('/redirects', 'redirects.List'),
     (r'/config/(.*)', 'handlers.Config'),
     (r'/c/?', 'handlers.Count'),
 ], debug=True)
