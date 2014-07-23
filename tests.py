@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import os, sys, base64, unittest, time
 
 # get app engine's resources
@@ -66,7 +67,7 @@ class TestCase(unittest.TestCase):
 
 
   def test_config_post(self):
-    body = '"foo":"bar"'
+    body = '{"foo":"bar"}'
     response = self._create_config(body=body)
     self.assertEqual(response.status_int, 204)
     self.assertEqual(response.body, '')
@@ -200,10 +201,12 @@ class TestCase(unittest.TestCase):
     memcache.set('already_donated', d)
     memcache.set('eur_goal', 50000)
     self._create_config(
-      '"locale": "de","subheading":"Jeder Klick hilft mit {increment}","activated":"Bereits {donated} gespendet:","money":"{unlocked}","clickcount":"{clicks} Klicks"'
+        '{"firstvisit":"center","secondvisit":"top","default_locale":"en","strings":{'
+        + '"en":{"heading":"Thanks!","subheading":"Every click is worth %increment%","about":"More about the <strong>dotHIV</strong> initiative","activated":"Already %donated% contributed:","money":"%unlocked%","clickcount":"%clicks% clicks"},'
+        + '"de":{"heading":"Danke!","subheading":"Jeder Klick hilft mit %increment%","about":"Mehr über die <strong>dotHIV</strong> Initiative","activated":"Bereits %donated% gespendet:","money":"%unlocked%","clickcount":"%clicks% Klicks"}}}'
     )
     uri = '/c?domain=' + self.domain + '&from=inside'
-    request = Request.blank(uri, headers=[self.auth_header])
+    request = Request.blank(uri, headers=[('Accept-Language', 'de,en-US;q=0.5,en;q=0.6')])
     request.method = 'POST'
     response = request.get_response(application)
     config = json.decode(response.body)

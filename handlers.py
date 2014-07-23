@@ -26,11 +26,11 @@ def get_domain_or_404(name, allow_none=False):
     return domain
 
 
-def createDomainConfig(domain):
+def createDomainConfig(domain, client_locales):
     """
     TODO: Cache?
     """
-    config = json.decode('{%s}' % domain.content) if domain.content else {}
+    config = json.decode(domain.content) if domain.content else {}
 
     # Fetch global values
     m = memcache.get_multi(['clicks_total', 'already_donated', 'already_clicked', 'eur_goal'])
@@ -69,19 +69,32 @@ def createDomainConfig(domain):
     config['increment'] = EUR_INCREMENT
 
     # Create labels
-    f = Format(config["locale"] if "locale" in config else None)
+    locale = 'en'
+    if 'default_locale' in config:
+        locale = config['default_locale']
+        del config['default_locale']
+
+    # Get client locale
+    for client_locale in client_locales:
+        if client_locale in config['__locales']:
+            locale = client_locale
+            break
+    del config['__locales']
+    f = Format(locale)
     labels = {
         'donated': f.decimalMoney(already_donated),
         'unlocked': f.money(unlocked),
         'clicks': f.decimal(clicks),
         'increment': f.money(EUR_INCREMENT)
     }
-    for key in config:
-        if isinstance(config[key], basestring):
-            config[key] = config[key].format(**labels)
-
+    if 'strings' in config:
+        for key in config['strings'][locale]:
+            if isinstance(config['strings'][locale][key], basestring):
+                config[key] = config['strings'][locale][key]
+                for labelkey in labels:
+                    config[key] = config[key].replace('%' + labelkey + '%', labels[labelkey])
+        del config['strings']
     return json.encode(config)
-
 
 def initClicksTotal():
     """
@@ -90,6 +103,28 @@ def initClicksTotal():
     memcache.set('clicks_total', 1)
     deferred.defer(update_total_clicks)
 
+"""
+Parse the value in a Accept-Language Header
+
+@see http://cvmlrobotics.blogspot.de/2012/10/detect-user-language-locale-on-google.html
+"""
+def getClientLocales(acceptLanguage):
+    if not acceptLanguage:
+        return ['en']
+    languages = acceptLanguage.split(",")
+    locale_q_pairs = []
+
+    for language in languages:
+        if language.split(";")[0] == language:
+            # no q => q = 1
+            locale_q_pairs.append((language.strip(), "1"))
+        else:
+            locale = language.split(";")[0].strip()
+            q = language.split(";")[1].split("=")[1]
+            locale_q_pairs.append((locale, q))
+
+    sorted_pairs = sorted(locale_q_pairs, key=lambda lang: lang[1], reverse=True)
+    return map(lambda lang: lang[0], sorted_pairs)
 
 class Error(Exception):
     """Base class for exceptions in this module."""
@@ -124,19 +159,21 @@ class Config(webapp2.RequestHandler):
     def get(self, domain_name):
         domain = get_domain_or_404(domain_name)
         self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write(createDomainConfig(domain))
-
+        self.response.write(createDomainConfig(domain, getClientLocales(self.request.headers.get('accept-language'))))
 
     @basic_auth
     def post(self, domain_name):
         domain = get_domain_or_404(domain_name, allow_none=True)
         if not domain:
             domain = Domain(name=domain_name, clickcount=0, money=0.)
-        # example content:
-        # "firstvisit":"center","secondvisit":"center","heading":"Vielen Dank!","subheading":"Dein Klick auf domain.hiv hat soeben einen Gegenwert von 1&thinsp;ct ausgel&ouml;st.","claim":"Wir sind Teil der Bewegung","about":"&Uuml;ber dotHIV","vote":"Vote","activated":"Bisher aktiviert:","currency":"&euro;","corresponding":"entspricht","clicks":"Klicks"
-        domain.content = self.request.body
+        data = self.request.body.strip()
+        config = json.decode(data) if len(data) > 0 else {}
+        config['__locales'] = []
+        if 'strings' in config:
+            for locale in config['strings']:
+                config['__locales'].append(locale)
+        domain.content = json.encode(config)
         domain.put()
-
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.set_status(204)
 
@@ -203,4 +240,4 @@ class Count(webapp2.RequestHandler):
         # allow origin
         if 'Origin' in self.request.headers:
             self.response.headers['Access-Control-Allow-Origin'] = self.request.headers['Origin']
-        self.response.write(createDomainConfig(domain))
+        self.response.write(createDomainConfig(domain, getClientLocales(self.request.headers.get('accept-language'))))
