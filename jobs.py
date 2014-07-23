@@ -57,8 +57,8 @@ class CounterPersist(webapp2.RequestHandler):
         for domain in Domain.query():
             new_count = memcache.get(get_cache_key(domain))
             if new_count < domain.clickcount:
-                logging.error("New clickcount for %s would be %n, is %n", domain.name, new_count, domain.clickcount)
+                logging.error("New clickcount for %s would be %d, is %d", domain.name, new_count, domain.clickcount)
             else:
                 domain.clickcount = new_count
                 domain.put()
-                logging.info("clickcount for %s: %n -> %n", domain.name, domain.clickcount, new_count)
+                logging.info("clickcount for %s: %d -> %d", domain.name, domain.clickcount, new_count)
