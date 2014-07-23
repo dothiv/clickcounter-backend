@@ -4,30 +4,6 @@
 
 The Google App Engine cloud app that supports the Click Counter.
 
-## Atomic nbd.put()
-
-
-Data objects are modified in the handlers and then all the modifications are
-sent to the storage together by NBD's put() method, which in itself is consistent.
-See [Storing Data in Python](https://developers.google.com/appengine/docs/python/storage).
-
-
-## IPv6 compatibility
-
-[This means that all App Engine apps will become accessible over IPv6 to anyone participating in the program!](http://googleappengine.blogspot.de/2010/03/app-engine-joins-google-over-ipv6.html)
-
-
-## Data storage comparision
-
-See [Storing Data in Python](https://developers.google.com/appengine/docs/python/storage).
-
-> Strongly consistent except when performing global queries.
-
-> The App Engine Datastore offers a free quota with daily limits. Paid accounts offer unlimited storage, read, and write operations.
-
-
-## NOTES
-
 The technical specification is available [here](https://docs.google.com/document/d/18N4WNGfieNwkS7Nfb518ok7tvOO4bGWwl-0EqdoqIrM).
 
 ## API
