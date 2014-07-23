@@ -1,7 +1,7 @@
 # app handlers
 import webapp2
 
-from settings import JINJA_ENVIRONMENT, ALREADY_DONATED, ALREADY_CLICKED, EUR_GOAL, EUR_INCREMENT, get_test_mode, COUNT_THRESHOLD
+from settings import JINJA_ENVIRONMENT, ALREADY_DONATED, ALREADY_CLICKED, EUR_GOAL, EUR_INCREMENT, COUNT_THRESHOLD
 from models import Domain
 from decorators import basic_auth
 from webapp2_extras import json
@@ -54,11 +54,6 @@ def createDomainConfig(domain, client_locales):
 
     clicks_total = m['clicks_total'] if 'clicks_total' in m else 0
     clicks = clicks_total - already_clicked
-
-    ## Use random data in test mode
-    if get_test_mode():
-        already_donated = round(100000.0 * random(), 2)
-        clicks = int(goal * (1/EUR_INCREMENT) * random())
 
     ## Plain values
     config['donated'] = float(already_donated)

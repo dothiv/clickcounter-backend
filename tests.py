@@ -15,7 +15,7 @@ from webapp2_extras import json
 from google.appengine.ext import testbed
 
 from main import application
-from settings import get_auth_secret, set_auth_secret, get_test_mode, set_test_mode, COUNT_THRESHOLD
+from settings import get_auth_secret, set_auth_secret, COUNT_THRESHOLD
 from google.appengine.api import memcache
 import pickle
 import jobs
@@ -34,7 +34,6 @@ class TestCase(unittest.TestCase):
     )
     self.domain = 'foobar'
     self.uri_config = '/config/' + self.domain
-    set_test_mode(False)
 
   def tearDown(self):
     # Run pending jobs
