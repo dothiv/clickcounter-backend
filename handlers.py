@@ -140,7 +140,7 @@ class Config(webapp2.RequestHandler):
     def post(self, domain_name):
         domain = get_domain_or_404(domain_name, allow_none=True)
         if not domain:
-            domain = Domain(name=domain_name, clickcount=0, money=0.)
+            domain = Domain(name=domain_name, clickcount=0)
         data = self.request.body.strip()
         config = json.decode(data) if len(data) > 0 else {}
         config['__locales'] = []

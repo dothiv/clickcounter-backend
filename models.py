@@ -10,7 +10,6 @@ class Domain(ndb.Model):
   name = ndb.StringProperty(indexed=True, required=True)
   content = ndb.TextProperty()
   clickcount = ndb.IntegerProperty(default=0)
-  money = ndb.FloatProperty(default=0.)
 
 class Config(ndb.Model):
     """

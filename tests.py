@@ -220,7 +220,6 @@ class TestCase(unittest.TestCase):
     response = request.get_response(application)
     config = json.decode(response.body)
     self.assertEqual("Bereits 500.000 &euro; gespendet:", str(config['activated']))
-    # FIXME: Implement global counting for money, clickcount
     self.assertEqual("3.333,33 &euro;", str(config['money']))
     self.assertEqual("3.333.333 Klicks", str(config['clickcount']))
     self.assertEqual("Jeder Klick hilft mit 0,1 ct", str(config['subheading']))
