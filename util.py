@@ -13,6 +13,8 @@
 
 class Format(object):
     LOCALE_DE = 'de'
+    LOCALE_ES = 'es'
+    LOCALE_FR = 'fr'
     LOCALE_EN = 'en'
     DEFAULT_LOCALE = 'en'
 
@@ -42,7 +44,7 @@ class Format(object):
             return ','.join((pre, post))
         if number < 0.01: # Cent
             return "{0:.1f}&cent;".format(number * 100)
-        return "${0:,.2f}".format(number)
+        return "&euro;{0:,.2f}".format(number)
 
     def decimalMoney(self, number, ratio=1.0):
         """
@@ -51,7 +53,7 @@ class Format(object):
         decimal = self.decimal(float(number) * ratio)
         if self.isDe():
             return "%s &euro;" % decimal
-        return "$%s" % decimal
+        return "&euro;%s" % decimal
 
     def float(self, number):
         """
@@ -62,4 +64,4 @@ class Format(object):
         return "%.1f" % float(number)
 
     def isDe(self):
-        return self.locale == Format.LOCALE_DE
+        return self.locale in [Format.LOCALE_DE, Format.LOCALE_ES, Format.LOCALE_FR]
