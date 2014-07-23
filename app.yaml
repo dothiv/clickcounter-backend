@@ -1,5 +1,5 @@
 application: dothiv-registry
-version: 1
+version: 2
 runtime: python27
 api_version: 1
 threadsafe: false
@@ -15,9 +15,14 @@ handlers:
   http_headers:
     Access-Control-Allow-Origin: '*'
 
+- url: /task/counter/persist
+  script: main.application
+  login: admin
+
 - url: /.*
   script: main.application
   secure: always
+
 
 libraries:
 - name: webapp2

@@ -7,15 +7,15 @@ from decorators import basic_auth
 from webapp2_extras import json
 from util import Format
 from google.appengine.api import memcache
-from google.appengine.ext import deferred
-from jobs import update_total_clicks
+import jobs
 from random import random
 
-def get_domain_or_404(name, allow_none=False):
-    """Gets a domain entity for the given name.
+"""
+Gets a domain entity for the given name.
 
-    Aborts with 404 if entity doesn't exist and if that is not allowed.
-    """
+Aborts with 404 if entity doesn't exist and if that is not allowed.
+"""
+def get_domain_or_404(name, allow_none=False):
     if not name:
         webapp2.abort(404)
 
@@ -95,13 +95,6 @@ def createDomainConfig(domain, client_locales):
                     config[key] = config[key].replace('%' + labelkey + '%', labels[labelkey])
         del config['strings']
     return json.encode(config)
-
-def initClicksTotal():
-    """
-    Initialize the memcached total click counter
-    """
-    memcache.set('clicks_total', 1)
-    deferred.defer(update_total_clicks)
 
 """
 Parse the value in a Accept-Language Header
@@ -193,13 +186,27 @@ class Count(webapp2.RequestHandler):
 
     POST: increment click count if certain parameters are valid
     """
-
     def post(self):
         params = self.request.params
         if not 'domain' in params:
             self.abort(404)
 
-        domain = get_domain_or_404(params['domain'])
+        cache_key_domain = 'domain:d:' + params['domain']
+
+        domain = memcache.get(cache_key_domain)
+        if domain == 0:
+            self.abort(404)
+            return
+        if not domain:
+            domain = Domain.query(Domain.name == params['domain']).get()
+            if not domain:
+                # store for 60 seconds
+                memcache.set(cache_key_domain, 0, 60)
+                self.abort(404)
+                return
+            else:
+                memcache.set(cache_key_domain, domain, 60)
+
         # count clicks from outside the iframe that have a previous (pt) and current (ct) visit timestamp
         # previous timestamp may be empty if the client has no record of this user having visited the domain before)
         # current timestamp may not be empty
@@ -219,9 +226,10 @@ class Count(webapp2.RequestHandler):
                         raise Error("Value '%s' for 'ct' must be greater or equal than value '%s' for 'pt'" % (params['ct'], params['pt']))
 
                     if current_visit - previous_visit >= COUNT_THRESHOLD:
-                        domain.increment_counter()
+                        if memcache.incr(jobs.get_cache_key(domain)) is None:
+                            jobs.init_clicks(domain)
                         if memcache.incr("clicks_total") is None:
-                            initClicksTotal()
+                            jobs.init_clicks_total()
         except Error as e:
             self.response.headers['Content-Type'] = 'application/api-problem+json'
             self.response.set_status(403)

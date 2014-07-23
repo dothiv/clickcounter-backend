@@ -1,0 +1,4 @@
+cron:
+- description: persist click counts
+  url: /task/counter/persist
+  schedule: every 1 minutes

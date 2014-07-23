@@ -18,6 +18,8 @@ from main import application
 from settings import get_auth_secret, set_auth_secret, get_test_mode, set_test_mode, COUNT_THRESHOLD
 from google.appengine.api import memcache
 import pickle
+import jobs
+import models
 
 class TestCase(unittest.TestCase):
   def setUp(self):
@@ -176,6 +178,20 @@ class TestCase(unittest.TestCase):
     self._test_c_post(uri, body)
 
     self.assertEquals(2, memcache.get('clicks_total'))
+    d = models.Domain()
+    d.name = self.domain
+    self.assertEquals(2, memcache.get(jobs.get_cache_key(d)))
+
+    # Pre-cron
+    domain = models.Domain.query(models.Domain.name == str(self.domain)).get()
+    self.assertEquals(0, domain.clickcount)
+
+    # Execute cron
+    request = Request.blank('/task/counter/persist', headers=[('X-AppEngine-Cron', 'true')])
+    request.method = 'GET'
+    resp = request.get_response(application)
+    domain = models.Domain.query(models.Domain.name == str(self.domain)).get()
+    self.assertEquals(2, domain.clickcount)
 
   def test_c_post_error(self):
     self._create_config()

@@ -1,9 +1,6 @@
 # app models
-from google.appengine.ext import ndb
-from settings import EUR_INCREMENT, EUR_GOAL
-import os
-import util
 
+from google.appengine.ext import ndb
 
 class Domain(ndb.Model):
   """
@@ -14,13 +11,6 @@ class Domain(ndb.Model):
   content = ndb.TextProperty()
   clickcount = ndb.IntegerProperty(default=0)
   money = ndb.FloatProperty(default=0.)
-
-  def increment_counter(self):
-    """Increments clickcount, money and status."""
-    self.clickcount += 1
-    self.money += EUR_INCREMENT
-    self.put()
-
 
 class Config(ndb.Model):
     """
