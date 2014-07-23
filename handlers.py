@@ -119,19 +119,6 @@ class Error(Exception):
     def __init__(self, message):
         self.message = message
 
-
-class Index(webapp2.RequestHandler):
-    """
-    Handler Index
-
-    Implements GET only and renders a simple page template
-    """
-
-    def get(self):
-        template = JINJA_ENVIRONMENT.get_template('page.html')
-        self.response.write(template.render())
-
-
 class Config(webapp2.RequestHandler):
     """
     Handler Config

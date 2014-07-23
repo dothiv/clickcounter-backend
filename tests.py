@@ -50,12 +50,6 @@ class TestCase(unittest.TestCase):
     self.testbed.deactivate()
 
 
-  def test_index(self):
-    response = application.get_response('/')
-    self.assertEqual(response.status_int, 200)
-    self.assertEqual('banner.min.js' in response.text, True)
-
-
   def _create_config(self, body=None):
     """Helper to create a basic domain config.
 
