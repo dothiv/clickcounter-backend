@@ -67,9 +67,10 @@ class CounterPersist(webapp2.RequestHandler):
             elif new_count == domain.clickcount:
                 logging.info("clickcount for %s unchanged: %d", domain.name, new_count)
             else:
+                old_count = domain.clickcount
                 domain.clickcount = new_count
                 domain.put()
-                logging.info("clickcount for %s: %d -> %d", domain.name, domain.clickcount, new_count)
+                logging.info("clickcount for %s: %d -> %d", domain.name, old_count, new_count)
 
 
 class TotalPersist(webapp2.RequestHandler):
