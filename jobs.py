@@ -58,6 +58,8 @@ class CounterPersist(webapp2.RequestHandler):
             new_count = memcache.get(get_cache_key(domain))
             if new_count < domain.clickcount:
                 logging.error("New clickcount for %s would be %d, is %d", domain.name, new_count, domain.clickcount)
+            elif not new_count:
+                logging.info("No clickcount in memcache for: %s", domain.name)
             else:
                 domain.clickcount = new_count
                 domain.put()
