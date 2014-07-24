@@ -20,6 +20,7 @@ from google.appengine.api import memcache
 import pickle
 import jobs
 import models
+from datetime import datetime
 
 class TestCase(unittest.TestCase):
   def setUp(self):
@@ -178,13 +179,23 @@ class TestCase(unittest.TestCase):
     # Pre-cron
     domain = models.Domain.query(models.Domain.name == str(self.domain)).get()
     self.assertEquals(0, domain.clickcount)
+    count = models.ClickcountDate.query().get()
+    self.assertTrue(count is None)
 
-    # Execute cron
+    # Execute memcount cron
     request = Request.blank('/task/counter/persist', headers=[('X-AppEngine-Cron', 'true')])
     request.method = 'GET'
-    resp = request.get_response(application)
+    request.get_response(application)
     domain = models.Domain.query(models.Domain.name == str(self.domain)).get()
     self.assertEquals(2, domain.clickcount)
+
+    # Execute total cron
+    request = Request.blank('/task/total/persist', headers=[('X-AppEngine-Cron', 'true')])
+    request.method = 'GET'
+    request.get_response(application)
+    count = models.ClickcountDate.query().get()
+    self.assertEquals(2, count.clickcount)
+    self.assertEquals(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"), count.time.strftime("%Y-%m-%dT%H:%M:%S"))
 
   def test_c_post_error(self):
     self._create_config()

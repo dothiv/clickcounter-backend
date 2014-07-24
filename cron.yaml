@@ -1,4 +1,7 @@
 cron:
-- description: persist click counts
+- description: persist memcache click counts
   url: /task/counter/persist
   schedule: every 1 minutes
+- description: persist total click counts
+  url: /task/total/persist
+  schedule: every 1 hour

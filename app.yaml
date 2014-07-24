@@ -19,7 +19,7 @@ handlers:
   http_headers:
     Access-Control-Allow-Origin: '*'
 
-- url: /task/counter/persist
+- url: /task/.*
   script: main.application
   login: admin
 

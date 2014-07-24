@@ -2,14 +2,24 @@
 
 from google.appengine.ext import ndb
 
+
 class Domain(ndb.Model):
-  """
-  Models an individual domain entry with content, clickcount, money and
-  status.
-  """
-  name = ndb.StringProperty(indexed=True, required=True)
-  content = ndb.TextProperty()
-  clickcount = ndb.IntegerProperty(default=0)
+    """
+    Models an individual domain entry with content, clickcount, money and
+    status.
+    """
+    name = ndb.StringProperty(indexed=True, required=True)
+    content = ndb.TextProperty()
+    clickcount = ndb.IntegerProperty(default=0)
+
+
+class ClickcountDate(ndb.Model):
+    """
+    Stores the total click count for the given time
+    """
+    clickcount = ndb.IntegerProperty(default=0)
+    time = ndb.DateTimeProperty(auto_now_add=True)
+
 
 class Config(ndb.Model):
     """
