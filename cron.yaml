@@ -6,4 +6,4 @@ cron:
 
 - description: persist total click counts
   url: /task/total/persist
-  schedule: every 1 hour
+  schedule: every 1 hours
