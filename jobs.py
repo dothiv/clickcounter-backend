@@ -3,7 +3,6 @@
 import webapp2
 from models import Domain
 from google.appengine.api import memcache
-import handlers
 import logging
 import models
 from google.appengine.ext import deferred
@@ -60,10 +59,10 @@ class CounterPersist(webapp2.RequestHandler):
         for domain in Domain.query():
             # TODO: Maybe maintain a list of domains which do have a memcache counter?
             new_count = memcache.get(get_cache_key(domain))
-            if new_count < domain.clickcount:
-                logging.error("New clickcount for %s would be %d, is %d", domain.name, new_count, domain.clickcount)
-            elif not new_count:
+            if not new_count:
                 logging.info("No clickcount in memcache for: %s", domain.name)
+            elif new_count < domain.clickcount:
+                logging.error("New clickcount for %s would be %d, is %d", domain.name, new_count, domain.clickcount)
             elif new_count == domain.clickcount:
                 logging.info("clickcount for %s unchanged: %d", domain.name, new_count)
             else:
