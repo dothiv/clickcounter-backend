@@ -26,8 +26,6 @@ handlers:
 - url: /.*
   script: main.application
   secure: always
-  http_headers:
-    Access-Control-Allow-Origin: '*'
 
 libraries:
 - name: webapp2
