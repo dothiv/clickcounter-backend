@@ -58,11 +58,13 @@ class CounterPersist(webapp2.RequestHandler):
             return
         for domain in Domain.query():
             # TODO: Maybe maintain a list of domains which do have a memcache counter?
-            new_count = memcache.get(get_cache_key(domain))
+            k = get_cache_key(domain)
+            new_count = memcache.get(k)
             if not new_count:
                 logging.info("No clickcount in memcache for: %s", domain.name)
             elif new_count < domain.clickcount:
                 logging.error("New clickcount for %s would be %d, is %d", domain.name, new_count, domain.clickcount)
+                memcache.delete(k)
             elif new_count == domain.clickcount:
                 logging.info("clickcount for %s unchanged: %d", domain.name, new_count)
             else:
