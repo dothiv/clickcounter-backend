@@ -89,7 +89,7 @@ def createDomainConfig(domain, client_locales):
                 for labelkey in labels:
                     config[key] = config[key].replace('%' + labelkey + '%', labels[labelkey])
         del config['strings']
-    return json.encode(config)
+    return config
 
 """
 Parse the value in a Accept-Language Header
@@ -133,8 +133,10 @@ class Config(webapp2.RequestHandler):
     @basic_auth
     def get(self, domain_name):
         domain = get_domain_or_404(domain_name)
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write(createDomainConfig(domain, getClientLocales(self.request.headers.get('accept-language'))))
+        self.response.headers['Content-Type'] = 'application/json'
+        config = createDomainConfig(domain, getClientLocales(self.request.headers.get('accept-language')))
+        config['clicks_domain'] = domain.clickcount
+        self.response.write(json.encode(config))
 
     @basic_auth
     def post(self, domain_name):
@@ -230,4 +232,5 @@ class Count(webapp2.RequestHandler):
         # allow origin
         if 'Origin' in self.request.headers:
             self.response.headers['Access-Control-Allow-Origin'] = self.request.headers['Origin']
-        self.response.write(createDomainConfig(domain, getClientLocales(self.request.headers.get('accept-language'))))
+        config = createDomainConfig(domain, getClientLocales(self.request.headers.get('accept-language')))
+        self.response.write(json.encode(config))

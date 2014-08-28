@@ -70,7 +70,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(response.status_int, 204)
         self.assertEqual(response.body, '')
 
-        body = '{"foo":"bar", "clicks":0, "donated":0.0, "unlocked": 0.0, "percent":0.0, "increment": 0.001}'
+        body = '{"foo":"bar", "clicks":0, "clicks_domain":0, "donated":0.0, "unlocked": 0.0, "percent":0.0, "increment": 0.001}'
         request = Request.blank(self.uri_config, headers=[self.auth_header])
         response = request.get_response(application)
         self._compareJson(response.body, body)
@@ -285,6 +285,24 @@ class TestCase(unittest.TestCase):
         response = request.get_response(application)
         clickcount = int(response.body)
         self.assertEqual(1234, clickcount)
+
+    def test_individual_clickcount(self):
+        """
+        The config get request should contain the domains individual clickcount
+        """
+        self._create_config()
+        d = models.Domain.query(models.Domain.name == self.domain).get()
+        d.clickcount = 1234
+        d.put()
+        headers = [
+            self.auth_header,
+            ('Accept', 'text/plain')
+        ]
+        request = Request.blank(self.uri_config, headers=headers)
+        response = request.get_response(application)
+        self.assertEqual(response.status_int, 200)
+        config = json.decode(response.body)
+        self.assertEqual(1234, config['clicks_domain'])
 
 
 if __name__ == '__main__':
