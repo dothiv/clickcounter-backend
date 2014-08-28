@@ -10,12 +10,7 @@ The technical specification is available [here](https://docs.google.com/document
 
 ### Static files
 
-Serve static files without authentication: 
-
- * `/banner.min.js`
- * `/banner-top.html`
- * `/banner-right.html`
- * `/banner-center.html`
+Serve static files in `/static` without authentication.
 
 ### Endpoints
 
@@ -88,7 +83,20 @@ increment the number of visit for the domain and populate domain configuration.
 
 See [#5](https://github.com/dothiv/clickcounter-backend/pull/5) for an explanation of the request parameters.
 
-See [banner's demo.json](https://github.com/dothiv/banner/blob/master/src/demo.json) for an example response.
+See [click-counter's demo.json](https://github.com/dothiv/clickcounter/blob/master/develop/demo.json) for an example response.
+
+#### Fetch global clickcount
+
+This returns the global click count of all .hiv domains as an integer value
+
+    request:
+        URL: /stats/clickcount
+        method: GET
+    response:
+        headers:
+          content-type: text/plain
+          code: 200
+        body: 123456789
 
 #### Fetch configured .hiv domain redirects
 
@@ -105,7 +113,7 @@ We provide a ruleset file which list redirects from regular domains to their .hi
             Content-type: application/json
             Last-Modified: …
             ETag: …
-        body: [example](https://github.com/dothiv/banner/blob/master/example/redirects.json)
+        body: [example](https://github.com/dothiv/clickcounter-backend/blob/master/example/redirects.json)
 
 ### Authorization
 
