@@ -263,6 +263,29 @@ class TestCase(unittest.TestCase):
         response = request.get_response(application)
         self.assertEqual(406, response.status_int)
 
+    def test_stats_clickcount(self):
+        """
+        Test that the API returns the total clickcount
+        """
+        headers = [
+            ('Accept', 'text/plain')
+        ]
+        # memcache empty
+        request = Request.blank('/stats/clickcount', headers=headers)
+        request.method = 'GET'
+        response = request.get_response(application)
+        self.assertEqual(503, response.status_int)
+
+        # Fill memcache
+        memcache.set('clicks_total', 1234)
+        request = Request.blank('/stats/clickcount', headers=headers)
+        request.method = 'GET'
+        response = request.get_response(application)
+        self.assertEqual(200, response.status_int)
+        response = request.get_response(application)
+        clickcount = int(response.body)
+        self.assertEqual(1234, clickcount)
+
 
 if __name__ == '__main__':
     unittest.main()
