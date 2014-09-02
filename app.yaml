@@ -23,9 +23,13 @@ handlers:
   script: main.application
   login: admin
 
-- url: /.*
+- url: /(redirects|config|stats).*
   script: main.application
   secure: always
+
+- url: /.*
+  script: main.application
+  secure: optional
 
 libraries:
 - name: webapp2
