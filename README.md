@@ -113,7 +113,10 @@ We provide a ruleset file which list redirects from regular domains to their .hi
             Content-type: application/json
             Last-Modified: …
             ETag: …
-        body: [example](https://github.com/dothiv/clickcounter-backend/blob/master/example/redirects.json)
+        body: …
+
+You can query this endpoint live:  
+`curl -H "Accept: application/json" https://dothiv-registry.appspot.com/redirects`
 
 ### Authorization
 
