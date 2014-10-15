@@ -11,7 +11,8 @@ class Domain(ndb.Model):
     name = ndb.StringProperty(indexed=True, required=True)
     content = ndb.TextProperty()
     clickcount = ndb.IntegerProperty(default=0)
-
+    redirect_url = ndb.TextProperty()
+    redirect_enabled = ndb.BooleanProperty(default=False)
 
 class ClickcountDate(ndb.Model):
     """

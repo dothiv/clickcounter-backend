@@ -242,7 +242,11 @@ class TestCase(unittest.TestCase):
         self.assertEqual("Jeder Klick hilft mit 0,1 ct", str(config['subheading']))
         self.assertEqual(round(3333.33 / 50000, 3), round(config['percent'], 3))
 
+    # Redirects
     def test_redirects(self):
+        self._create_config(
+            '{"firstvisit":"center","secondvisit":"top","default_locale":"en","redirect_url":"http://example.com/"}'
+        )
         headers = [
             ('Accept', 'application/json')
         ]
@@ -252,7 +256,12 @@ class TestCase(unittest.TestCase):
         self.assertEqual(200, response.status_int)
         self.assertEqual("application/json", response.headers['Content-Type'])
         redirects = json.decode(response.body)
-        self.assertEquals(2, len(redirects))
+        self.assertEquals(1, len(redirects))
+        self.assertEquals(redirects[0]['hosts'][0], 'foobar')
+        self.assertEquals(redirects[0]['hosts'][1], '*.foobar')
+        self.assertEquals(redirects[0]['exceptions'], [])
+        self.assertEquals(redirects[0]['rules'][0]['from'], "^http\\:\\/\\/example\\.com\\/")
+        self.assertEquals(redirects[0]['rules'][0]['to'], "http://foobar/")
 
     def test_redirects_not_acceptable(self):
         headers = [
@@ -262,6 +271,8 @@ class TestCase(unittest.TestCase):
         request.method = 'GET'
         response = request.get_response(application)
         self.assertEqual(406, response.status_int)
+
+    # Total clickcount
 
     def test_stats_clickcount(self):
         """

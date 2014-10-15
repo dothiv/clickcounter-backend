@@ -150,6 +150,14 @@ class Config(webapp2.RequestHandler):
             for locale in config['strings']:
                 config['__locales'].append(locale)
         domain.content = json.encode(config)
+
+        # Redirects
+        domain.redirect_enabled = False
+        domain.redirect_url = None
+        if 'redirect_url' in config:
+            domain.redirect_enabled = True
+            domain.redirect_url = config['redirect_url']
+
         domain.put()
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.set_status(204)
