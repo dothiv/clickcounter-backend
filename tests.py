@@ -245,7 +245,7 @@ class TestCase(unittest.TestCase):
     # Redirects
     def test_redirects(self):
         self._create_config(
-            '{"firstvisit":"center","secondvisit":"top","default_locale":"en","redirect_url":"http://example.com/"}'
+            '{"firstvisit":"center","secondvisit":"top","default_locale":"en","redirect_url":"http://www.example.com/"}'
         )
         headers = [
             ('Accept', 'application/json')
@@ -257,10 +257,11 @@ class TestCase(unittest.TestCase):
         self.assertEqual("application/json", response.headers['Content-Type'])
         redirects = json.decode(response.body)
         self.assertEquals(1, len(redirects))
-        self.assertEquals(redirects[0]['hosts'][0], 'example.com')
-        self.assertEquals(redirects[0]['hosts'][1], '*.example.com')
+        self.assertEquals(1, len(redirects[0]['hosts']))
+        self.assertEquals(redirects[0]['hosts'][0], 'www.example.com')
         self.assertEquals(redirects[0]['exceptions'], [])
-        self.assertEquals(redirects[0]['rules'][0]['from'], "^http\\:\\/\\/example\\.com\\/")
+        self.assertEquals(1, len(redirects[0]['rules']))
+        self.assertEquals(redirects[0]['rules'][0]['from'], "^http\\:\\/\\/www\\.example\\.com\\/")
         self.assertEquals(redirects[0]['rules'][0]['to'], "http://foobar/")
 
     def test_redirects_not_acceptable(self):

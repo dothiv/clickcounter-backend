@@ -21,7 +21,7 @@ class List(webapp2.RequestHandler):
         domains = Domain.query(Domain.redirect_enabled == True)
         for domain in domains.iter():
             host = urlparse(domain.redirect_url)
-            rule = dict(hosts=[host.netloc, "*." + host.netloc])
+            rule = dict(hosts=[host.netloc])
             rule["rules"] = [
                 {"from": "^" + re.escape(domain.redirect_url), "to": "http://" + domain.name + "/"}]
             rule["exceptions"] = []
