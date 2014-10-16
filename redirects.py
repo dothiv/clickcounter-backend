@@ -3,7 +3,7 @@ import webapp2
 import re
 from webapp2_extras import json
 from models import Domain
-
+from urlparse import urlparse
 
 class List(webapp2.RequestHandler):
     """
@@ -20,7 +20,8 @@ class List(webapp2.RequestHandler):
 
         domains = Domain.query(Domain.redirect_enabled == True)
         for domain in domains.iter():
-            rule = dict(hosts=[domain.name, "*." + domain.name])
+            host = urlparse(domain.redirect_url)
+            rule = dict(hosts=[host.netloc, "*." + host.netloc])
             rule["rules"] = [
                 {"from": "^" + re.escape(domain.redirect_url), "to": "http://" + domain.name + "/"}]
             rule["exceptions"] = []
