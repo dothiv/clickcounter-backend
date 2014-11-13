@@ -24,6 +24,18 @@ class List(webapp2.RequestHandler):
             rule = dict(hosts=[host.netloc])
             rule["rules"] = [
                 {"from": "^" + re.escape(domain.redirect_url), "to": "http://" + domain.name + "/"}]
+
+            if re.match('^www\.', host.netloc):
+                # Add rule without www
+                rule["hosts"].append(host.netloc[4:])
+                nowww_redirect_url = re.sub('//www\.', '//', domain.redirect_url)
+                rule["rules"].append({"from": "^" + re.escape(nowww_redirect_url), "to": "http://" + domain.name + "/"})
+            else:
+                # Add rule with www
+                rule["hosts"].append("www." + host.netloc)
+                www_redirect_url = re.sub('(https*://)', '\g<1>www.', domain.redirect_url)
+                rule["rules"].append({"from": "^" + re.escape(www_redirect_url), "to": "http://" + domain.name + "/"})
+
             rule["exceptions"] = []
             redirects.append(rule)
 
