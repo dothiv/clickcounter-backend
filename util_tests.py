@@ -50,6 +50,16 @@ class TestCase(unittest.TestCase):
         self.assertEquals('0,1 ct', util.Format('fr').money(0.001))
         self.assertEquals('0.1&cent;', util.Format('en').money(0.001))
         self.assertEquals('0.1&cent;', util.Format().money(0.001))
-
+        self.assertEquals('1 ct', util.Format('de').money(0.01))
+        self.assertEquals('1 ct', util.Format('es').money(0.01))
+        self.assertEquals('1 ct', util.Format('fr').money(0.01))
+        self.assertEquals('1&cent;', util.Format('en').money(0.01))
+        self.assertEquals('1&cent;', util.Format().money(0.01))
+        self.assertEquals('99 ct', util.Format('de').money(0.99))
+        self.assertEquals('99 ct', util.Format('es').money(0.99))
+        self.assertEquals('99 ct', util.Format('fr').money(0.99))
+        self.assertEquals('99&cent;', util.Format('en').money(0.99))
+        self.assertEquals('99&cent;', util.Format().money(0.99))
+        
 if __name__ == '__main__':
     unittest.main()

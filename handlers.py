@@ -33,7 +33,7 @@ def createDomainConfig(domain, client_locales):
     config = json.decode(domain.content) if domain.content else {}
 
     # Fetch global values
-    m = memcache.get_multi(['clicks_total', 'already_donated', 'already_clicked', 'eur_goal'])
+    m = memcache.get_multi(['clicks_total', 'already_donated', 'already_clicked', 'eur_goal', 'eur_increment'])
     if 'already_clicked' not in m:
         memcache.set('already_clicked', ALREADY_CLICKED)
         already_clicked = ALREADY_CLICKED
@@ -52,16 +52,22 @@ def createDomainConfig(domain, client_locales):
     else:
         goal = m['eur_goal']
 
-    clicks_total = m['clicks_total'] if 'clicks_total' in m else 0
+    if 'eur_increment' not in m:
+        memcache.set('eur_increment', EUR_INCREMENT)
+        increment = EUR_INCREMENT
+    else:
+        increment = m['eur_increment']
+
+    clicks_total = m['clicks_total'] if 'clicks_total' in m else already_clicked
     clicks = clicks_total - already_clicked
 
     ## Plain values
     config['donated'] = float(already_donated)
-    unlocked = clicks * EUR_INCREMENT
+    unlocked = already_donated + clicks * increment
     config['unlocked'] = unlocked
     config['percent'] = unlocked / goal
     config['clicks'] = clicks
-    config['increment'] = EUR_INCREMENT
+    config['increment'] = increment
 
     # Create labels
     locale = 'en'
@@ -80,7 +86,7 @@ def createDomainConfig(domain, client_locales):
         'donated': f.decimalMoney(already_donated),
         'unlocked': f.money(unlocked),
         'clicks': f.decimal(clicks),
-        'increment': f.money(EUR_INCREMENT)
+        'increment': f.money(increment)
     }
     if 'strings' in config:
         for key in config['strings'][locale]:

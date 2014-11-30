@@ -5,11 +5,10 @@
     But we need to format numbers.
     This is our aproach.
 
-    @author    Markus Tacker <m@dotHIV.org>
-    @copyright 2014 dotHIV e.V. | http://dotHIV.org
+    @author    Markus Tacker <m@click4life.hiv>
+    @copyright 2014 TLD dotHIV Registry GmbH | https://tld.hiv/
 
 """
-
 
 class Format(object):
     LOCALE_DE = 'de'
@@ -38,12 +37,16 @@ class Format(object):
         if self.isDe():
             if number < 0.01: # Cent
                 pre, post = "{0:.1f} ct".format(number * 100).split('.')
+            elif number < 1.0: # Decimal Cent
+                return "{0:n} ct".format(number * 100)
             else:
                 pre, post = "{0:,.2f} &euro;".format(number).split('.')
             pre = pre.replace(',', '.')
             return ','.join((pre, post))
         if number < 0.01: # Cent
             return "{0:.1f}&cent;".format(number * 100)
+        elif number < 1.0: # Decimal Cent
+            return "{0:n}&cent;".format(number * 100)
         return "&euro;{0:,.2f}".format(number)
 
     def decimalMoney(self, number, ratio=1.0):
