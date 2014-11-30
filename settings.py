@@ -6,10 +6,10 @@ import random, string
 EUR_INCREMENT = 0.01
 
 # number of clicks in past stretches
-ALREADY_CLICKED = 34900
+ALREADY_CLICKED = 34820
 
 # money already raised from past stretches
-ALREADY_DONATED = 34.90
+ALREADY_DONATED = 34.82
 
 # overall goal; used to calculate status
 EUR_GOAL = 61801
