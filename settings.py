@@ -1,5 +1,5 @@
 # app settings
-import os, jinja2
+import os
 import random, string
 
 # how many EUR to increment on click; added to field 'money'
@@ -19,15 +19,6 @@ COUNT_THRESHOLD = 60 * 1000
 
 # project root directory
 PROJECT_DIR = os.path.dirname(__file__)
-
-# template directory
-TEMPLATE_DIR = os.path.join(PROJECT_DIR, 'templates')
-
-# the template engine's environment
-JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
-    extensions=['jinja2.ext.autoescape'])
-
 
 def set_auth_secret(secret):
     """

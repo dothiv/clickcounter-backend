@@ -1,7 +1,7 @@
 # app handlers
 import webapp2
 
-from settings import JINJA_ENVIRONMENT, ALREADY_DONATED, ALREADY_CLICKED, EUR_GOAL, EUR_INCREMENT, COUNT_THRESHOLD
+from settings import ALREADY_DONATED, ALREADY_CLICKED, EUR_GOAL, EUR_INCREMENT, COUNT_THRESHOLD
 from models import Domain
 from decorators import basic_auth
 from webapp2_extras import json
