@@ -244,7 +244,7 @@ class TestCase(unittest.TestCase):
         config = json.decode(response.body)
         self.assertEqual("Bereits 25.000 &euro; gespendet:", str(config['activated']))
         self.assertEqual("28.333,33 &euro;", str(config['money']))
-        self.assertEqual("333.333 Klicks", str(config['clickcount']))
+        self.assertEqual("25.333.333 Klicks", str(config['clickcount']))
         self.assertEqual("Jeder Klick hilft mit 1 ct", str(config['subheading']))
         self.assertEqual(round(28333.33 / 50000, 3), round(config['percent'], 3))
 

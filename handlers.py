@@ -66,7 +66,7 @@ def createDomainConfig(domain, client_locales):
     unlocked = already_donated + clicks * increment
     config['unlocked'] = unlocked
     config['percent'] = unlocked / goal
-    config['clicks'] = clicks
+    config['clicks'] = clicks_total
     config['increment'] = increment
 
     # Create labels
@@ -85,7 +85,7 @@ def createDomainConfig(domain, client_locales):
     labels = {
         'donated': f.decimalMoney(already_donated),
         'unlocked': f.money(unlocked),
-        'clicks': f.decimal(clicks),
+        'clicks': f.decimal(clicks_total),
         'increment': f.money(increment)
     }
     if 'strings' in config:
