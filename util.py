@@ -44,9 +44,9 @@ class Format(object):
             pre = pre.replace(',', '.')
             return ','.join((pre, post))
         if number < 0.01: # Cent
-            return "{0:.1f}&cent;".format(number * 100)
+            return "&euro;{0:.1f}&cent;".format(number * 100)
         elif number < 1.0: # Decimal Cent
-            return "{0:n}&cent;".format(number * 100)
+            return "&euro;{0:n}&cent;".format(number * 100)
         return "&euro;{0:,.2f}".format(number)
 
     def decimalMoney(self, number, ratio=1.0):
