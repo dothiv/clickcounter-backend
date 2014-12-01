@@ -14,6 +14,7 @@ class Format(object):
     LOCALE_DE = 'de'
     LOCALE_ES = 'es'
     LOCALE_FR = 'fr'
+    LOCALE_PL = 'pl'
     LOCALE_EN = 'en'
     DEFAULT_LOCALE = 'en'
 
@@ -67,4 +68,4 @@ class Format(object):
         return "%.1f" % float(number)
 
     def isDe(self):
-        return self.locale in [Format.LOCALE_DE, Format.LOCALE_ES, Format.LOCALE_FR]
+        return self.locale in [Format.LOCALE_DE, Format.LOCALE_ES, Format.LOCALE_FR, Format.LOCALE_PL]
