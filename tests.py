@@ -297,6 +297,22 @@ class TestCase(unittest.TestCase):
         self.assertEquals(redirects[0]['rules'][1]['from'], "^http\\:\\/\\/www\\.example\\.com\\/")
         self.assertEquals(redirects[0]['rules'][1]['to'], "http://foobar/")
 
+
+    def test_redirects_csv(self):
+        self._create_config(
+            '{"firstvisit":"center","secondvisit":"top","default_locale":"en","redirect_url":"http://example.com/"}'
+        )
+        headers = [
+            ('Accept', 'text/csv')
+        ]
+        request = Request.blank('/redirects', headers=headers)
+        request.method = 'GET'
+        response = request.get_response(application)
+        self.assertEqual(200, response.status_int)
+        self.assertEqual("text/csv", response.headers['Content-Type'])
+        self.assertEqual("foobar,http://example.com/\r\n", response.body)
+
+
     def test_redirects_not_acceptable(self):
         headers = [
             ('Accept', 'text/plain')

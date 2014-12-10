@@ -4,6 +4,7 @@ import re
 from webapp2_extras import json
 from models import Domain
 from urlparse import urlparse
+import csv
 
 class List(webapp2.RequestHandler):
     """
@@ -13,8 +14,17 @@ class List(webapp2.RequestHandler):
     """
 
     def get(self):
-        if 'Accept' in self.request.headers and self.request.headers['Accept'] != 'application/json':
-            webapp2.abort(406)
+        if 'Accept' in self.request.headers:
+            if self.request.headers['Accept'] == 'application/json':
+                self.list_redirects_json()
+                return
+            if self.request.headers['Accept'] == 'text/csv':
+                self.list_redirects_csv()
+                return
+        webapp2.abort(406)
+
+
+    def list_redirects_json(self):
 
         redirects = []
 
@@ -41,3 +51,14 @@ class List(webapp2.RequestHandler):
 
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.encode(redirects))
+
+
+    def list_redirects_csv(self):
+
+        self.response.headers['Content-Type'] = 'text/csv'
+
+        writer = csv.writer(self.response, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        domains = Domain.query(Domain.redirect_enabled == True)
+        for domain in domains.iter():
+            writer.writerow([domain.name, domain.redirect_url])
