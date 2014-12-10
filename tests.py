@@ -74,7 +74,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(response.status_int, 204)
         self.assertEqual(response.body, '')
 
-        body = '{"foo":"bar", "clicks":0, "clicks_domain":0, "donated":0.0, "unlocked": 0.0, "percent":0.0, "increment": 0.01}'
+        body = '{"foo":"bar", "clicks":0, "clicks_domain":0, "donated":0.0, "unlocked": 0.0, "percent":0.0, "increment": 0.001}'
         request = Request.blank(self.uri_config, headers=[self.auth_header])
         response = request.get_response(application)
         self._compareJson(response.body, body)
@@ -160,14 +160,14 @@ class TestCase(unittest.TestCase):
 
         # all values should still be 0 after request from inside
         uri = '/c?domain=' + self.domain + '&from=inside'
-        body = '{"clicks":0, "donated":0.0, "unlocked": 0.0, "percent":0.0, "increment": 0.01}'
+        body = '{"clicks":0, "donated":0.0, "unlocked": 0.0, "percent":0.0, "increment": 0.001}'
         self._test_c_post(uri, body)
 
         # from == outside, no previous visit, with current timestamp increases counter
         now = int(time.time() * 1000)
         current_time = "%d" % now
         uri = '/c?domain=' + self.domain + '&from=outside&pt=&ct=' + current_time
-        body = '{"clicks":1, "donated":0.0, "unlocked": 0.01, "percent":0.01, "increment": 0.01}'
+        body = '{"clicks":1, "donated":0.0, "unlocked": 0.001, "percent":0.001, "increment": 0.001}'
         self._test_c_post(uri, body)
 
         # from == outside, previous visit 1 second before current timestamp does not increase counter
@@ -177,7 +177,7 @@ class TestCase(unittest.TestCase):
         # from == outside, previous visit before current timestamp increases counter
         uri = '/c?domain=' + self.domain + '&from=outside&pt=' + (
             "%s" % (now - COUNT_THRESHOLD)) + '&ct=' + current_time
-        body = '{"clicks":2, "donated":0.0, "unlocked": 0.02, "percent":0.02, "increment": 0.01}'
+        body = '{"clicks":2, "donated":0.0, "unlocked": 0.002, "percent":0.002, "increment": 0.001}'
         self._test_c_post(uri, body)
 
         self.assertEquals(2, memcache.get('clicks_total'))
@@ -231,7 +231,7 @@ class TestCase(unittest.TestCase):
         memcache.set('clicks_total', d * 1000 + 333333)
         memcache.set('already_donated', d)
         memcache.set('eur_goal', 50000)
-        memcache.set('eur_increment', 0.01)
+        memcache.set('eur_increment', 0.001)
         self._create_config(
             '{"firstvisit":"center","secondvisit":"top","default_locale":"en","strings":{'
             + '"en":{"heading":"Thanks!","subheading":"Every click is worth %increment%","about":"More about the <strong>dotHIV</strong> initiative","activated":"Already %donated% contributed:","money":"%unlocked%","clickcount":"%clicks% clicks"},'
@@ -243,10 +243,10 @@ class TestCase(unittest.TestCase):
         response = request.get_response(application)
         config = json.decode(response.body)
         self.assertEqual("Bereits 25.000 &euro; gespendet:", str(config['activated']))
-        self.assertEqual("28.333,33 &euro;", str(config['money']))
+        self.assertEqual("25.333,33 &euro;", str(config['money']))
         self.assertEqual("25.333.333 Klicks", str(config['clickcount']))
-        self.assertEqual("Jeder Klick hilft mit 1 ct", str(config['subheading']))
-        self.assertEqual(round(28333.33 / 50000, 3), round(config['percent'], 3))
+        self.assertEqual("Jeder Klick hilft mit 0,1 ct", str(config['subheading']))
+        self.assertEqual(round(25333.33 / 50000, 3), round(config['percent'], 3))
 
     # Redirects
     def test_redirects(self):
