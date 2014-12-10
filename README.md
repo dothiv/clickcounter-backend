@@ -111,12 +111,32 @@ We provide a ruleset file which list redirects from regular domains to their .hi
         headers:
             Code: 200
             Content-type: application/json
-            Last-Modified: …
-            ETag: …
         body: …
 
 You can query this endpoint live:  
 `curl -H "Accept: application/json" https://dothiv-registry.appspot.com/redirects`
+
+##### Inverse mapping as CSV
+
+There is also the reverse version of this list, mapping hiv domain to redirect as a CSV list:
+
+    request:
+        URL: /redirects
+        method: GET
+        headers:
+            Accept: text/csv
+    response:
+        headers:
+            Code: 200
+            Content-type: text/csv
+        body:
+            beratung.hiv,http://www.aidshilfe-beratung.de
+            sixt.hiv,http://www.sixt.de
+            …
+
+
+You can query this endpoint live:  
+`curl -H "Accept: text/csv" https://dothiv-registry.appspot.com/redirects`
 
 ### Authorization
 
